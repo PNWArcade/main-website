@@ -39,7 +39,7 @@ export default function RootLayout({
       >
         <QueryProvider>
           <Navbar />
-          <main className="min-h-[80vh]">{children}</main>
+          <main className="">{children}</main>
           <Footer />
         </QueryProvider>
       </body>

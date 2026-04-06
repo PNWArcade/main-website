@@ -3,7 +3,7 @@ import Link from "next/link"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
 import {faInstagram, faLinkedin, faFacebook, faXTwitter} from "@fortawesome/free-brands-svg-icons"
 import Image from "next/image"
-import ASMEPNWLogo from "../../../../public/ASMEPNWLogo.png"
+import ArcadePNW from "../../../../public/arcade.png";
 import { Button } from "@/components/ui/buttons/Button"
 import { createClient } from "@/lib/supabase/server"
 
@@ -18,8 +18,8 @@ export async function Footer() {
                 {/* Left — Logo */}
                 <div className="flex items-center shrink-0">
                     <Image
-                        src={ASMEPNWLogo}
-                        alt="ASME PNW"
+                        src={ArcadePNW}
+                        alt="Arcade PNW"
                         className="w-auto h-12 sm:h-14 lg:h-16"
                     />
                 </div>
@@ -123,7 +123,7 @@ export async function Footer() {
 
             {/* Bottom */}
             <div className="border-t border-gray-500 py-4 text-center text-xs text-gray-300">
-                <p>© {year} Purdue Northwest ASME. Built with ❤ by Jih & Aaron</p>
+                <p>© {year} Purdue Northwest ARCADE. Built with ❤ by Jih</p>
             </div>
         </footer>
     )
