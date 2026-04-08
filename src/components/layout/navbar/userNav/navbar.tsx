@@ -42,9 +42,26 @@ export function Navbar() {
         }
     ]
     return (
-        <header
-            className="w-full bg-transparent top-0 fixed left-0 z-50">
-            <nav className={`relative mx-auto mt-3 w-[min(1200px,calc(100%-2rem))] rounded-[28px] px-4 py-3 sm:px-6 lg:px-8 transition-all duration-300 ${isScrolled ? 'bg-black/30 backdrop-blur-md' : ''}`}>
+        <>
+            <style>{`
+                @keyframes slideDownFade {
+                    0% {
+                        opacity: 0;
+                        transform: translateY(-50px);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .navbar-pop {
+                    animation: slideDownFade 0.6s ease-out 2s forwards;
+                    opacity: 0;
+                }
+            `}</style>
+            <header
+                className="navbar-pop w-full bg-transparent top-0 fixed left-0 z-50">
+            <nav className={`relative mx-auto mt-3 w-[min(1200px,calc(100%-2rem))] rounded-[28px] px-4 py-3 sm:px-6 lg:px-8 transition-all duration-300 backdrop-blur-md border border-white/20 shadow-lg ${isScrolled ? 'bg-black/40 backdrop-blur-xl border-white/15 shadow-xl' : 'bg-white/10'}`}>
                 <div className="flex items-center justify-between gap-4">
                 <Link href="/" className="flex items-center gap-3 shrink-0">
                     <Image
@@ -114,5 +131,6 @@ export function Navbar() {
                 </div>
             )}
         </header>
+        </>
     )
 }
