@@ -31,7 +31,7 @@ export async function Footer() {
                         <h3 className="font-semibold text-gray-100 mb-3">Contact</h3>
                         <ul className="space-y-2 text-sm">
                             <li>
-                                <Link href="mailto:arcade@purdue.edu" className="text-gray-300 hover:text-white transition-colors">
+                                <Link href="mailto:pnwarcade@purdue.edu" className="text-gray-300 hover:text-white transition-colors">
                                     arcade@gmail.com
                                 </Link>
                             </li>
