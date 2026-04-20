@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ARCADE PNW | Purdue Northwest",
   description:
-    "Advancing mechanical engineering at Purdue University Northwest through student innovation and collaboration.",
+    "Advancing mechanical and aeronautical engineering at Purdue University Northwest through student led innovation and collaboration.",
   icons: {
     icon: "/favicon.ico",
   },
