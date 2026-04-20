@@ -51,7 +51,7 @@ async function sendDiscordNotification(event: ParsedEvent): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        content: " @everyone Hey Engineers! There is a  **New ASME Event!**",
+        content: " @everyone Hey Engineers! There is a  **New ARCADE Event!**",
         embeds: [
           {
             title: event.eventName,
@@ -71,7 +71,7 @@ async function sendDiscordNotification(event: ParsedEvent): Promise<boolean> {
             ],
             image: event.eventPicture ? { url: event.eventPicture } : undefined,
             footer: {
-              text: "ASME PNW Events",
+              text: "ARCADE PNW Events",
             },
             timestamp: new Date().toISOString(),
           },
@@ -101,7 +101,7 @@ export async function GET(request: Request) {
   try {
     // 1. Fetch current events from PNW
     const eventsResponse = await fetch(
-      `${EVENTS_API}?range=0&limit=20&search_word=asme`,
+      `${EVENTS_API}?range=0&limit=20&search_word=arcade`,
       {
         headers: {
           Accept: "application/json",

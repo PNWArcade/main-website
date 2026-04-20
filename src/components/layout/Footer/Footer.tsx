@@ -31,8 +31,8 @@ export async function Footer() {
                         <h3 className="font-semibold text-gray-100 mb-3">Contact</h3>
                         <ul className="space-y-2 text-sm">
                             <li>
-                                <Link href="mailto:asme@purdue.edu" className="text-gray-300 hover:text-white transition-colors">
-                                    asme@purdue.edu
+                                <Link href="mailto:arcade@purdue.edu" className="text-gray-300 hover:text-white transition-colors">
+                                    arcade@gmail.com
                                 </Link>
                             </li>
                             <li>
@@ -87,7 +87,7 @@ export async function Footer() {
                                 </Link>
                             </li> */}
                             <li>
-                                <Link href="https://instagram.com/asme_pnw" target="_blank" className="text-gray-300 hover:text-white transition-colors">
+                                <Link href="https://instagram.com/arcade__pnw" target="_blank" className="text-gray-300 hover:text-white transition-colors">
                                     Instagram
                                 </Link>
                             </li>
@@ -103,7 +103,7 @@ export async function Footer() {
                 {/* Right — Social Icons & Admin Login */}
                 <div className="flex flex-col items-end gap-4 shrink-0">
                     <div className="flex items-center gap-4 text-gray-300">
-                        <Link href="https://instagram.com/asme_pnw" target="_blank" aria-label="Instagram" className="hover:text-white transition-colors">
+                        <Link href="https://instagram.com/arcade_pnw" target="_blank" aria-label="Instagram" className="hover:text-white transition-colors">
                             <FontAwesomeIcon icon={faInstagram} className="h-5 w-5"/>
                         </Link>
                         {/* <Link href="https://linkedin.com" target="_blank" aria-label="LinkedIn" className="hover:text-white transition-colors">

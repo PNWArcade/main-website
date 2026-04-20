@@ -49,7 +49,7 @@ function parseEvent(raw: Record<string, unknown>): PnwEvent | null {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const limit = searchParams.get("limit") || "10";
-  const search = searchParams.get("search") || "asme";
+  const search = searchParams.get("search") || "arcade";
 
   const url = `${EVENTS_API}?range=0&limit=${limit}&search_word=${encodeURIComponent(search)}`;
 

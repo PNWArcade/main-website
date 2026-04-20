@@ -51,7 +51,7 @@ export const TeamCard : React.FC < TeamCardProps > = ({
         <div className={cn(teamCardVariants({ variant }), className)}>
             <div className="relative h-64 overflow-hidden bg-gray-200">
                 <Image
-                    src={image || "https://via.placeholder.com/400x400.png?text=ASME+Member"}
+                    src={image || "https://via.placeholder.com/400x400.png?text=ARCADE+Member"}
                     alt={name}
                     width={400}
                     height={400}

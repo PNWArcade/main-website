@@ -17,7 +17,7 @@ export default function ProjectsPage() {
                 {/* Background Image - extends to category section */}
                 <div className="absolute inset-0 z-0 bg-black">
                     <Image
-                        src="/project-cover.jpg"
+                        src="/goblin.jpeg"
                         alt="Hero Background"
                         fill
                         className="opacity-30 object-cover "/>

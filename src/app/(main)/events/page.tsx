@@ -14,7 +14,7 @@ export default function EventsPage() {
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="/events.png"
+                        src="/events2.jpg"
                         alt="Events Background"
                         fill
                         className="opacity-90 object-cover"
@@ -31,10 +31,10 @@ export default function EventsPage() {
                 <div className="relative z-10 pt-20 pb-16">
                     <div className="container mx-auto px-6 lg:px-12">
                         <div className="max-w-3xl">
-                            <h1 className="text-5xl lg:text-7xl font-bold text-black mb-6 drop-shadow-2xl">
+                            <h1 className="text-5xl lg:text-7xl font-bold text-blue-200 mb-6 drop-shadow-2xl">
                                 Events
                             </h1>
-                            <p className="text-black text-lg mb-8 max-w-xl drop-shadow-lg leading-relaxed">
+                            <p className="text-white text-lg mb-8 max-w-xl drop-shadow-lg leading-relaxed">
                                 Join workshops, competitions, and networking sessions designed to enhance your engineering skills and connect you with industry professionals.
                             </p>
                         </div>

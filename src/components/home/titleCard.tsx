@@ -94,7 +94,7 @@ export default function TitleCard() {
 
                     <div className="flex justify-center gap-4">
                         <Button className="hover:text-black hover:bg-white text-xl p-6">
-                            <Link href="https://mypnwlife.pnw.edu/ASME/club_signup">Join Us!</Link>
+                            <Link href="https://mypnwlife.pnw.edu/ARCADE/club_signup">Join Us!</Link>
                         </Button>
                         <ScrollButton
                             variant="outline"

@@ -54,7 +54,7 @@ export async function GET() {
         }
 
         // Add invite URLs
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' || 'https://asmepnw.com'
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' || 'https://arcadepnw.com'
         const invitesWithUrls = data.map(invite => ({
             ...invite,
             invite_url: `${baseUrl}/invites?token=${invite.token}`,
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' || 'https://asmepnw.com'
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' || 'https://arcadepnw.com'
 
         // Generate a token for the invite link
         const token = crypto.randomUUID()

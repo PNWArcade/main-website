@@ -24,7 +24,7 @@ export default function NotFound() {
         </Button>
 
         <div className="mt-8 text-sm text-muted-foreground">
-          <p> Purdue Northwest ASME</p>
+          <p> Purdue Northwest ARCADE</p>
         </div>
       </div>
     </main>

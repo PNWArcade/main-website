@@ -48,12 +48,12 @@ export default async function Home() {
             <div id="mission" className="pt-30 px-[15%] ">
                 <section className="space-y-4">
                     <h1 className="text-4xl font-bold text-purdue-black leading-tight">
-                        Advancing mechanical engineering<br/>
+                        Advancing aeronautical engineering<br/>
                         through student collaboration.
                     </h1>
                     <p className="text-4xl text-purdue-railway leading-tight">
                         Our mission is to inspire, connect, and
-                        empower<br/> future engineers at Purdue Northwest.
+                        empower<br/> future engineers and astronauts at Purdue Northwest.
                     </p>
 
                 </section>
@@ -61,56 +61,57 @@ export default async function Home() {
 
             {/* Feature Sections */}
             <div className="py-12 px-[15%]">
-                {/* Senior Design Showcase - Text Left, Image Right */}
+                {/* NASA Student Launch Initiative - Text Left, Image Right */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
                     <div>
                         <h2 className="text-3xl font-bold text-purdue-black mb-4">
-                            Shell-Eco Marathon
+                            NASA Student Launch Initiative
                         </h2>
                         <p className="text-2xl text-gray-600">
-                            Students build and race energy-efficient vehicles in the Shell Eco-Marathon
-                            competition.
+                            A prestigious annual competition where student teams design, build, and launch high-powered rockets. We develop innovative propulsion systems, aerodynamic designs, and advanced payload technologies to compete at the national level.
                         </p>
                     </div>
                     <div
                         className="relative rounded-3xl aspect-square flex items-center justify-center overflow-hidden">
                         <Image
                             src="/team.jpg"
-                            alt="Senior Design Showcase"
+                            alt="NASA Student Launch Initiative"
                             fill
                             className="object-cover"/>
                     </div>
                 </div>
 
-                {/* 3D Printing Hub - Image Left, Text Right */}
+                {/* Rocketry Excellence - Image Left, Text Right */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
                     <div
                         className="relative rounded-3xl aspect-square flex items-center justify-center overflow-hidden order-2 md:order-1">
-                        <Image src="/3dCAR.jpg" alt="3D Printing Hub" fill className="object-cover"/>
+                        <Image src="/adrian.jpg" alt="Rocketry Excellence" fill className="object-cover"/>
                     </div>
                     <div className="order-1 md:order-2">
                         <h2 className="text-3xl font-bold text-purdue-black mb-4">
-                            3D Printing Hub.
+                            Advanced Rocketry & Propulsion
                         </h2>
                         <p className="text-2xl text-gray-600">
-                            Hands-on training with professional-grade additive manufacturing tools.
+                            Hands-on experience in rocket design, propulsion systems, and structural analysis. Members develop skills in CAD modeling, materials science, flight dynamics, and engineering best practices essential in aerospace.
                         </p>
                     </div>
                 </div>
+
+                {/* Student-Driven Innovation */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
                     <div>
                         <h2 className="text-3xl font-bold text-purdue-black mb-4">
-                            Senior Design Showcase.
+                            Student-Driven Innovation & Leadership
                         </h2>
                         <p className="text-2xl text-gray-600">
-                            Showcases research-driven capstone design projects that integrate engineering theory, applied research, and real-world problem solving within a research university setting.
+                            Student engineers lead every aspect of the project—from technical teams to budgets and industry partnerships. This real-world experience in project management and aerospace engineering prepares members for careers in space exploration and aviation.
                         </p>
                     </div>
                     <div
                         className="relative rounded-3xl aspect-square flex items-center justify-center overflow-hidden">
                         <Image
-                            src="/ELECTRONICS.jpg"
-                            alt="Senior Design Showcase"
+                            src="/eric.jpg"
+                            alt="Student Innovation"
                             fill
                             className="object-cover"/>
                     </div>
@@ -145,7 +146,7 @@ export default async function Home() {
                 <section className="space-y-6">
                     <h2 className="text-3xl font-bold text-center">The Fastest Growing Club at Purdue</h2>
                     <p className="text-2xl text-justify">
-                        Becoming a member of ASME PNW opens doors to numerous opportunities. Participate
+                        Becoming a member of ARCADE PNW opens doors to numerous opportunities. Participate
                         in exciting projects, attend workshops, and connect with like-minded peers and
                         professionals in the field. We welcome students from all years and backgrounds
                         to join our community.
@@ -154,7 +155,7 @@ export default async function Home() {
                         <div className="text-center">
                             <div className="text-6xl font-bold text-purdue-black">
                                 <CountingNumber
-                                    number={100}
+                                    number={30}
                                     inView={true}
                                     transition={{
                                     stiffness: 100,
@@ -166,7 +167,7 @@ export default async function Home() {
                         <div className="text-center">
                             <div className="text-6xl font-bold text-purdue-black">
                                 <CountingNumber
-                                    number={20}
+                                    number={3}
                                     inView={true}
                                     transition={{
                                     stiffness: 100,
@@ -178,14 +179,14 @@ export default async function Home() {
                     </div>
 
                     <div className="flex justify-center mt-8">
-                        <Link className="m" href='https://mypnwlife.pnw.edu/ASME/club_signup'>
+                        <Link className="m" href='https://mypnwlife.pnw.edu/ARCADE/club_signup'>
 
                             <Button
                                 className='hover:bg-gray-300 hover:text-black'
                                 variant="default"
                                 size="lg">
                                 <FontAwesomeIcon icon={faLink}/>
-                                Join ASME PNW Today!
+                                Join ARCADE PNW Today!
 
                             </Button>
                         </Link>

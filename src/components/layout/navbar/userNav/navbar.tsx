@@ -10,7 +10,11 @@ import {Button} from '@/components/ui/buttons/Button'
 import {NAV_LINKS} from "@/config/routes"
 import ArcadePNW from "../../../../../public/arcade.png";
 
-export function Navbar() {
+interface NavbarProps {
+    isHomePage?: boolean
+}
+
+export function Navbar({ isHomePage = false }: NavbarProps) {
     const [open,
         setOpen] = useState(false)
     const [isScrolled, setIsScrolled] = useState(false)
@@ -61,7 +65,7 @@ export function Navbar() {
             `}</style>
             <header
                 className="navbar-pop w-full bg-transparent top-0 fixed left-0 z-50">
-            <nav className={`relative mx-auto mt-3 w-[min(1200px,calc(100%-2rem))] rounded-[28px] px-4 py-3 sm:px-6 lg:px-8 transition-all duration-300 backdrop-blur-md border border-white/20 shadow-lg ${isScrolled ? 'bg-black/40 backdrop-blur-xl border-white/15 shadow-xl' : 'bg-white/10'}`}>
+            <nav className={`relative mx-auto mt-3 w-[min(1200px,calc(100%-2rem))] rounded-[28px] px-4 py-3 sm:px-6 lg:px-8 transition-all duration-300 backdrop-blur-md border border-white/20 shadow-lg ${isScrolled || !isHomePage ? 'bg-black/40 backdrop-blur-xl border-white/15 shadow-xl' : 'bg-white/10'}`}>
                 <div className="flex items-center justify-between gap-4">
                 <Link href="/" className="flex items-center gap-3 shrink-0">
                     <Image
@@ -87,7 +91,7 @@ export function Navbar() {
                 </div>
 
                 <div className="hidden md:flex items-center gap-2 shrink-0">
-                    <Link href="https://mypnwlife.pnw.edu/ASME/club_signup" className="cursor-pointer">
+                    <Link href="https://mypnwlife.pnw.edu/ARCADE/club_signup" className="cursor-pointer">
                         <Button className="border border-white/35 bg-white/25 text-white hover:bg-white/35 text-sm rounded-2xl px-5 py-2 font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]" variant="default" size="sm">
                             Join Us
                         </Button>
@@ -123,7 +127,7 @@ export function Navbar() {
                             </Button>
                         </Link>
                     ))}
-                    <Link href="https://mypnwlife.pnw.edu/ASME/club_signup" className="cursor-pointer">
+                    <Link href="https://mypnwlife.pnw.edu/ARCADE/club_signup" className="cursor-pointer">
                         <Button variant="default" size="default" className="border border-white/35 bg-white/25 text-white hover:bg-white/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]" onClick={() => setOpen(false)}>
                             Get Started
                         </Button>

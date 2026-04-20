@@ -104,7 +104,7 @@ export default function TeamPage() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/Leadership.png"
+            src="/team.jpg"
             alt="Team Background"
             fill
             className="object-cover"
@@ -120,7 +120,7 @@ export default function TeamPage() {
           <div className="container mx-auto px-6 lg:px-12">
             <div className="max-w-3xl">
               <p className="text-yellow-500 text-sm font-semibold tracking-wider uppercase mb-4 drop-shadow-lg">
-                ASME AT PURDUE NORTHWEST
+                ARCADE AT PURDUE NORTHWEST
               </p>
               <h1 className="text-5xl lg:text-6xl font-bold text-black mb-6 drop-shadow-2xl">
                 Building the{' '}

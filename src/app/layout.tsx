@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 
 // 🧭 Import layout components
-import { Navbar } from "@/components/layout/navbar/userNav/navbar"
+import { NavbarWrapper } from "@/components/layout/navbar/NavbarWrapper"
 import { Footer } from "@/components/layout/Footer/Footer"
 import { QueryProvider } from "@/providers/QueryProvider"
 
@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "ASME PNW | Purdue Northwest",
+  title: "ARCADE PNW | Purdue Northwest",
   description:
     "Advancing mechanical engineering at Purdue University Northwest through student innovation and collaboration.",
   icons: {
@@ -38,7 +38,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
         <QueryProvider>
-          <Navbar />
+          <NavbarWrapper />
           <main className="">{children}</main>
           <Footer />
         </QueryProvider>
