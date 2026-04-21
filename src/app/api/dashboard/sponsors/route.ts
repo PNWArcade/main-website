@@ -19,14 +19,7 @@ export async function GET() {
             return NextResponse.json({ error: 'Failed to fetch sponsors' }, { status: 500 })
         }
 
-        // Transform 'Link' column to 'link' for frontend consistency
-        const transformedData = data?.map(sponsor => ({
-            ...sponsor,
-            link: sponsor.Link ?? null,
-            Link: undefined,
-        }))
-
-        return NextResponse.json({ data: transformedData })
+        return NextResponse.json({ data })
     } catch (error) {
         console.error('Unexpected error:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -59,12 +52,8 @@ export async function POST(request: NextRequest) {
             tier: validationResult.data.tier,
             logo_url: validationResult.data.logo_url || null,
             description: validationResult.data.description || null,
+            link: validationResult.data.link || null,
             order_index: validationResult.data.order_index ?? null,
-        }
-        
-        // Map 'link' to database column 'Link'
-        if ('link' in validationResult.data) {
-            sponsorData.Link = validationResult.data.link || null
         }
 
         const { data, error } = await supabase
@@ -78,14 +67,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Failed to create sponsor' }, { status: 500 })
         }
 
-        // Transform 'Link' column to 'link' for frontend consistency
-        const transformedData = {
-            ...data,
-            link: data.Link ?? null,
-            Link: undefined,
-        }
-
-        return NextResponse.json({ data: transformedData }, { status: 201 })
+        return NextResponse.json({ data }, { status: 201 })
     } catch (error) {
         console.error('Unexpected error:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

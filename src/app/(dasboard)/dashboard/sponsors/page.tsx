@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from 'react'
-import { RefreshCw, Plus, Trash2, Heart, ExternalLink } from 'lucide-react'
+import { RefreshCw, Plus, Trash2, Heart, ExternalLink, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/buttons/Button'
 import ImageUploader, { uploadImageToBucket } from '@/components/ui/ImageUploader'
 import { useSponsors, useCreateSponsor, useUpdateSponsor, useDeleteSponsor } from '@/hooks/useProjects'
+import { deleteImageFromBucket } from '@/lib/utils/imageCleanup'
 import type { Sponsor, SponsorTier } from '@/lib/schemas/project'
 
 const tierOptions: { value: SponsorTier; label: string; color: string }[] = [
@@ -27,6 +28,8 @@ export default function SponsorsPage() {
     const [pendingLogo, setPendingLogo] = useState<File | null>(null)
     const [editPendingLogo, setEditPendingLogo] = useState<File | null>(null)
     const [isSaving, setIsSaving] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [editError, setEditError] = useState<string | null>(null)
 
     // Group sponsors by tier
     const sponsorsByTier = {
@@ -38,23 +41,47 @@ export default function SponsorsPage() {
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault()
+        setError(null)
         setIsSaving(true)
+
         try {
             let logoUrl = newSponsor.logo_url
+            let uploadedImageUrl: string | null = null
+
+            // Step 1: Upload image first (if provided)
             if (pendingLogo) {
-                logoUrl = await uploadImageToBucket(pendingLogo, 'sponsors')
+                try {
+                    uploadedImageUrl = await uploadImageToBucket(pendingLogo, 'sponsors')
+                    logoUrl = uploadedImageUrl
+                } catch (uploadError) {
+                    setError('Failed to upload image. Please try again.')
+                    setIsSaving(false)
+                    return
+                }
             }
-            await createMutation.mutateAsync({
-                name: newSponsor.name,
-                tier: newSponsor.tier,
-                logo_url: logoUrl || undefined,
-                link: newSponsor.link || undefined,
-                description: newSponsor.description || undefined,
-                order_index: newSponsor.order_index ? parseInt(newSponsor.order_index) : undefined,
-            })
-            setShowCreate(false)
-            setNewSponsor({ name: '', logo_url: '', tier: 'gold', description: '', order_index: '', link: '' })
-            setPendingLogo(null)
+
+            // Step 2: Create sponsor in database
+            try {
+                await createMutation.mutateAsync({
+                    name: newSponsor.name,
+                    tier: newSponsor.tier,
+                    logo_url: logoUrl || undefined,
+                    link: newSponsor.link || undefined,
+                    description: newSponsor.description || undefined,
+                    order_index: newSponsor.order_index ? parseInt(newSponsor.order_index) : undefined,
+                })
+                // Success: reset form
+                setShowCreate(false)
+                setNewSponsor({ name: '', logo_url: '', tier: 'gold', description: '', order_index: '', link: '' })
+                setPendingLogo(null)
+            } catch (apiError) {
+                // API failed: delete uploaded image to prevent orphaned files
+                if (uploadedImageUrl) {
+                    await deleteImageFromBucket(uploadedImageUrl)
+                }
+                const errorMessage = apiError instanceof Error ? apiError.message : 'Failed to create sponsor'
+                setError(errorMessage)
+            }
         } finally {
             setIsSaving(false)
         }
@@ -82,28 +109,53 @@ export default function SponsorsPage() {
         setEditingId(null)
         setEditSponsor({ name: '', logo_url: '', tier: 'gold', description: '', order_index: '', link: '' })
         setEditPendingLogo(null)
+        setEditError(null)
     }
 
     const handleUpdate = async (e: React.FormEvent, sponsorId: string) => {
         e.preventDefault()
+        setEditError(null)
         setIsSaving(true)
+
         try {
             let logoUrl = editSponsor.logo_url
+            let uploadedImageUrl: string | null = null
+
+            // Step 1: Upload image first (if new image provided)
             if (editPendingLogo) {
-                logoUrl = await uploadImageToBucket(editPendingLogo, 'sponsors')
+                try {
+                    uploadedImageUrl = await uploadImageToBucket(editPendingLogo, 'sponsors')
+                    logoUrl = uploadedImageUrl
+                } catch (uploadError) {
+                    setEditError('Failed to upload image. Please try again.')
+                    setIsSaving(false)
+                    return
+                }
             }
-            await updateMutation.mutateAsync({
-                id: sponsorId,
-                data: {
-                    name: editSponsor.name,
-                    tier: editSponsor.tier,
-                    logo_url: logoUrl || undefined,
-                    link: editSponsor.link || undefined,
-                    description: editSponsor.description || undefined,
-                    order_index: editSponsor.order_index ? parseInt(editSponsor.order_index) : undefined,
-                },
-            })
-            handleStopEditing()
+
+            // Step 2: Update sponsor in database
+            try {
+                await updateMutation.mutateAsync({
+                    id: sponsorId,
+                    data: {
+                        name: editSponsor.name,
+                        tier: editSponsor.tier,
+                        logo_url: logoUrl || undefined,
+                        link: editSponsor.link || undefined,
+                        description: editSponsor.description || undefined,
+                        order_index: editSponsor.order_index ? parseInt(editSponsor.order_index) : undefined,
+                    },
+                })
+                // Success: close edit form
+                handleStopEditing()
+            } catch (apiError) {
+                // API failed: delete uploaded image to prevent orphaned files
+                if (uploadedImageUrl) {
+                    await deleteImageFromBucket(uploadedImageUrl)
+                }
+                const errorMessage = apiError instanceof Error ? apiError.message : 'Failed to update sponsor'
+                setEditError(errorMessage)
+            }
         } finally {
             setIsSaving(false)
         }
@@ -217,6 +269,17 @@ export default function SponsorsPage() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <h2 className="text-xl font-bold mb-4">Add Sponsor</h2>
+                        
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex gap-2">
+                                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm text-red-800">{error}</p>
+                                    <p className="text-xs text-red-600 mt-1">Image upload was unsuccessful. No files were saved.</p>
+                                </div>
+                            </div>
+                        )}
+
                         <form onSubmit={handleCreate} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
@@ -283,7 +346,7 @@ export default function SponsorsPage() {
                                 />
                             </div>
                             <div className="flex gap-2 justify-end">
-                                <Button type="button" variant="outline" onClick={() => { setShowCreate(false); setNewSponsor({ name: '', logo_url: '', tier: 'gold', description: '', order_index: '', link: '' }); setPendingLogo(null) }}>Cancel</Button>
+                                <Button type="button" variant="outline" onClick={() => { setShowCreate(false); setNewSponsor({ name: '', logo_url: '', tier: 'gold', description: '', order_index: '', link: '' }); setPendingLogo(null); setError(null) }}>Cancel</Button>
                                 <Button type="submit" disabled={createMutation.isPending || isSaving}>
                                     {isSaving ? 'Adding...' : 'Add Sponsor'}
                                 </Button>
@@ -298,6 +361,17 @@ export default function SponsorsPage() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <h2 className="text-xl font-bold mb-4">Edit Sponsor</h2>
+                        
+                        {editError && (
+                            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex gap-2">
+                                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm text-red-800">{editError}</p>
+                                    <p className="text-xs text-red-600 mt-1">Image upload was unsuccessful. No changes were saved.</p>
+                                </div>
+                            </div>
+                        )}
+
                         <form onSubmit={(e) => handleUpdate(e, editingId)} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>

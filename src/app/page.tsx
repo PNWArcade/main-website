@@ -27,17 +27,11 @@ export default async function Home() {
         .order('created_at', { ascending: false })
         .limit(6);
 
-    // Transform 'Link' column to 'link' for consistency
-    const allSponsors = rawSponsors?.map(s => ({
-        ...s,
-        link: s.Link ?? null,
-    }));
-
     const sponsors = {
-        platinum: allSponsors?.filter(s => s.tier === 'platinum') || [],
-        gold: allSponsors?.filter(s => s.tier === 'gold') || [],
-        silver: allSponsors?.filter(s => s.tier === 'silver') || [],
-        bronze: allSponsors?.filter(s => s.tier === 'bronze') || [],
+        platinum: rawSponsors?.filter(s => s.tier === 'platinum') || [],
+        gold: rawSponsors?.filter(s => s.tier === 'gold') || [],
+        silver: rawSponsors?.filter(s => s.tier === 'silver') || [],
+        bronze: rawSponsors?.filter(s => s.tier === 'bronze') || [],
     };
 
     return (
@@ -229,6 +223,7 @@ export default async function Home() {
                                                         alt={sponsor.name}
                                                         width={200}
                                                         height={100}
+                                                        unoptimized
                                                         className="object-contain mb-4"/>
                                                 ) : (
                                                     <div className="w-[200px] h-[100px] bg-gray-100 rounded flex items-center justify-center mb-4">
@@ -279,6 +274,7 @@ export default async function Home() {
                                                         alt={sponsor.name}
                                                         width={150}
                                                         height={75}
+                                                        unoptimized
                                                         className="object-contain mb-3"/>
                                                 ) : (
                                                     <div className="w-[150px] h-[75px] bg-gray-100 rounded flex items-center justify-center mb-3">
@@ -329,6 +325,7 @@ export default async function Home() {
                                                         alt={sponsor.name}
                                                         width={120}
                                                         height={60}
+                                                        unoptimized
                                                         className="object-contain mb-2"/>
                                                 ) : (
                                                     <div className="w-[120px] h-[60px] bg-gray-100 rounded flex items-center justify-center mb-2">
@@ -336,6 +333,9 @@ export default async function Home() {
                                                     </div>
                                                 )}
                                                 <CardTitle className="text-sm">{sponsor.name}</CardTitle>
+                                                {sponsor.description && (
+                                                    <p className="text-xs text-gray-500 text-center mt-1 line-clamp-2">{sponsor.description}</p>
+                                                )}
                                             </CardContent>
                                         </Card>
                                     );
@@ -376,6 +376,7 @@ export default async function Home() {
                                                         alt={sponsor.name}
                                                         width={80}
                                                         height={40}
+                                                        unoptimized
                                                         className="object-contain mb-1"/>
                                                 ) : (
                                                     <div className="w-[80px] h-[40px] bg-gray-100 rounded flex items-center justify-center mb-1">
