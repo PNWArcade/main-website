@@ -19,6 +19,7 @@ import {
     Copy,
     Check
 } from 'lucide-react'
+import { useConfirm } from '@/components/dashboard/ui/useConfirm'
 
 type UserRole = 'admin' | 'officer'
 
@@ -108,7 +109,7 @@ function RoleBadge({ role }: { role: UserRole | null }) {
         },
         officer: { 
             label: 'Officer', 
-            className: 'bg-blue-100 text-blue-700',
+            className: 'bg-purdue-gold/15 text-purdue-gold',
             icon: <Shield className="h-3 w-3" />
         },
     }
@@ -130,7 +131,7 @@ function StatusBadge({ status }: { status: Invite['status'] }) {
     const config = {
         pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-700' },
         accepted: { label: 'Accepted', className: 'bg-green-100 text-green-700' },
-        expired: { label: 'Expired', className: 'bg-gray-100 text-gray-500' },
+        expired: { label: 'Expired', className: 'bg-secondary text-muted-foreground' },
     }
     const { label, className } = config[status]
     
@@ -155,6 +156,7 @@ function formatDate(dateString: string | null) {
 }
 
 export default function MembersPage() {
+    const { confirm, dialog } = useConfirm()
     const queryClient = useQueryClient()
     const { toast, showToast, hideToast } = useToast()
     const [showInviteModal, setShowInviteModal] = useState(false)
@@ -255,11 +257,12 @@ export default function MembersPage() {
 
     return (
         <div className="space-y-8">
+            {dialog}
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Members</h1>
-                    <p className="text-gray-500">Manage team members and invitations</p>
+                    <h1 className="text-2xl font-bold text-foreground">Members</h1>
+                    <p className="text-muted-foreground">Manage team members and invitations</p>
                 </div>
                 <div className="flex gap-2">
                     <Button 
@@ -278,21 +281,21 @@ export default function MembersPage() {
             </div>
 
             {/* Members List */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-                <div className="p-4 border-b border-gray-100">
+            <div className="bg-card rounded-xl  border border-border">
+                <div className="p-4 border-b border-border">
                     <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-gray-500" />
-                        <h2 className="font-semibold text-gray-900">Team Members</h2>
-                        <span className="text-sm text-gray-500">({members?.length || 0})</span>
+                        <Users className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="font-semibold text-foreground">Team Members</h2>
+                        <span className="text-sm text-muted-foreground">({members?.length || 0})</span>
                     </div>
                 </div>
 
                 {loadingMembers ? (
                     <div className="p-8 flex justify-center">
-                        <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
+                        <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
                 ) : members?.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500">
+                    <div className="p-8 text-center text-muted-foreground">
                         No members found
                     </div>
                 ) : (
@@ -303,10 +306,10 @@ export default function MembersPage() {
                                     {(member.full_name || member.email).charAt(0).toUpperCase()}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-900 truncate">
+                                    <p className="font-medium text-foreground truncate">
                                         {member.full_name || 'No name set'}
                                     </p>
-                                    <p className="text-sm text-gray-500 truncate">{member.email}</p>
+                                    <p className="text-sm text-muted-foreground truncate">{member.email}</p>
                                 </div>
                                 <RoleBadge role={member.role} />
                                 <div className="flex items-center gap-2">
@@ -316,18 +319,16 @@ export default function MembersPage() {
                                             id: member.id, 
                                             role: e.target.value as UserRole 
                                         })}
-                                        className="text-sm border border-gray-200 rounded-lg px-2 py-1"
+                                        className="text-sm border border-border rounded-lg px-2 py-1"
                                     >
                                         <option value="officer">Officer</option>
                                         <option value="admin">Admin</option>
                                     </select>
                                     <button
                                         onClick={() => {
-                                            if (confirm(`Remove ${member.email} from the team?`)) {
-                                                deleteMemberMutation.mutate(member.id)
-                                            }
+                                            confirm(`Remove ${member.email} from the team?`).then((ok) => { if (ok) deleteMemberMutation.mutate(member.id) })
                                         }}
-                                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"
+                                        className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg"
                                         title="Remove member"
                                     >
                                         <Trash2 className="h-4 w-4" />
@@ -340,12 +341,12 @@ export default function MembersPage() {
             </div>
 
             {/* Pending Invites */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-                <div className="p-4 border-b border-gray-100">
+            <div className="bg-card rounded-xl  border border-border">
+                <div className="p-4 border-b border-border">
                     <div className="flex items-center gap-2">
-                        <Mail className="h-5 w-5 text-gray-500" />
-                        <h2 className="font-semibold text-gray-900">Pending Invites</h2>
-                        <span className="text-sm text-gray-500">
+                        <Mail className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="font-semibold text-foreground">Pending Invites</h2>
+                        <span className="text-sm text-muted-foreground">
                             ({invites?.filter(i => i.status === 'pending').length || 0})
                         </span>
                     </div>
@@ -353,22 +354,22 @@ export default function MembersPage() {
 
                 {loadingInvites ? (
                     <div className="p-8 flex justify-center">
-                        <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
+                        <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
                 ) : invites?.filter(i => i.status === 'pending').length === 0 ? (
-                    <div className="p-8 text-center text-gray-500">
+                    <div className="p-8 text-center text-muted-foreground">
                         No pending invites
                     </div>
                 ) : (
                     <div className="divide-y divide-gray-100">
                         {invites?.filter(i => i.status === 'pending').map((invite) => (
                             <div key={invite.id} className="p-4 flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground">
                                     <Mail className="h-5 w-5" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-900 truncate">{invite.email}</p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="font-medium text-foreground truncate">{invite.email}</p>
+                                    <p className="text-sm text-muted-foreground">
                                         Sent {formatDate(invite.created_at)} · Expires {formatDate(invite.expires_at)}
                                     </p>
                                 </div>
@@ -378,7 +379,7 @@ export default function MembersPage() {
                                     {invite.invite_url && (
                                         <button
                                             onClick={() => handleCopyLink(invite)}
-                                            className="p-1.5 text-gray-500 hover:bg-gray-50 rounded-lg"
+                                            className="p-1.5 text-muted-foreground hover:bg-muted rounded-lg"
                                             title="Copy invite link"
                                         >
                                             {copiedId === invite.id ? (
@@ -390,7 +391,7 @@ export default function MembersPage() {
                                     )}
                                     <button
                                         onClick={() => deleteInviteMutation.mutate(invite.id)}
-                                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"
+                                        className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg"
                                         title="Delete invite"
                                     >
                                         <Trash2 className="h-4 w-4" />
@@ -405,16 +406,16 @@ export default function MembersPage() {
             {/* Invite Modal */}
             {showInviteModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl shadow-lg w-full max-w-md mx-4">
-                        <div className="flex items-center justify-between p-4 border-b border-gray-100">
-                            <h3 className="font-semibold text-gray-900">
+                    <div className="bg-card rounded-xl shadow-lg w-full max-w-md mx-4">
+                        <div className="flex items-center justify-between p-4 border-b border-border">
+                            <h3 className="font-semibold text-foreground">
                                 {createdInvite ? 'Invite Sent!' : 'Invite New Member'}
                             </h3>
                             <button
                                 onClick={handleCloseInviteModal}
-                                className="p-1 hover:bg-gray-100 rounded-lg"
+                                className="p-1 hover:bg-secondary rounded-lg"
                             >
-                                <X className="h-5 w-5 text-gray-500" />
+                                <X className="h-5 w-5 text-muted-foreground" />
                             </button>
                         </div>
                         
@@ -424,7 +425,7 @@ export default function MembersPage() {
                                     <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                                         <Check className="h-6 w-6 text-green-600" />
                                     </div>
-                                    <p className="text-gray-600">
+                                    <p className="text-muted-foreground">
                                         Invite created for <span className="font-medium">{createdInvite.email}</span>
                                     </p>
                                 </div>
@@ -436,7 +437,7 @@ export default function MembersPage() {
                                             <Input
                                                 readOnly
                                                 value={createdInvite.invite_url}
-                                                className="flex-1 text-sm bg-gray-50"
+                                                className="flex-1 text-sm bg-muted"
                                             />
                                             <Button
                                                 type="button"
@@ -451,7 +452,7 @@ export default function MembersPage() {
                                                 )}
                                             </Button>
                                         </div>
-                                        <p className="text-xs text-gray-500">
+                                        <p className="text-xs text-muted-foreground">
                                             Share this link with the invitee to let them join.
                                         </p>
                                     </div>
@@ -484,12 +485,12 @@ export default function MembersPage() {
                                         id="invite-role"
                                         value={inviteRole}
                                         onChange={(e) => setInviteRole(e.target.value as UserRole)}
-                                        className="w-full border border-gray-200 rounded-lg px-3 py-2"
+                                        className="w-full border border-border rounded-lg px-3 py-2"
                                     >
                                         <option value="officer">Officer</option>
                                         <option value="admin">Admin</option>
                                     </select>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-muted-foreground">
                                         Officers can manage content. Admins can also manage team members.
                                     </p>
                                 </div>

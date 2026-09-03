@@ -1,189 +1,130 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import {notFound} from 'next/navigation';
-import {Button} from '@/components/ui/buttons/Button';
-import { createClient } from '@/lib/supabase/server';
+import Image from "next/image"
+import Link from "next/link"
+import { notFound } from "next/navigation"
+import { Button } from "@/components/ui/buttons/Button"
+import { createClient } from "@/lib/supabase/server"
+import { PageContainer } from "@/components/layout/PageContainer"
+import { ArrowRight } from "lucide-react"
 
-export default async function ProjectArticlesPage({params} : {
-    params: Promise < {
-        id: string
-    } >
+export default async function ProjectArticlesPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
 }) {
-    const {id} = await params;
-    const supabase = await createClient();
+  const { id } = await params
+  const supabase = await createClient()
 
-    // Fetch project by slug
-    const { data: project, error } = await supabase
-        .from('projects')
-        .select('id, title, slug')
-        .eq('slug', id)
-        .single();
+  const { data: project, error } = await supabase
+    .from("projects")
+    .select("id, title, slug")
+    .eq("slug", id)
+    .single()
 
-    if (error || !project) {
-        notFound();
-    }
+  if (error || !project) notFound()
 
-    // Fetch articles for this project with category
-    const { data: articles } = await supabase
-        .from('articles')
-        .select(`
-            *,
-            category:article_categories(name)
-        `)
-        .eq('project_id', project.id)
-        .eq('status', 'published')
-        .order('published_at', { ascending: false });
+  const { data: articles } = await supabase
+    .from("articles")
+    .select(`*, category:article_categories(name)`)
+    .eq("project_id", project.id)
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
 
-    return (
-        <div className="min-h-screen bg-white flex flex-col">
-            {/* Hero Section */}
-            <section className="py-20 bg-white">
-                <div className="container mx-auto px-6 lg:px-12">
-                    <div className="max-w-3xl ">
-                        <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-                            Technical Articles
-                        </h1>
-                        <p className="text-lg text-gray-600 leading-relaxed">
-                            Explore in-depth technical documentation, research findings, and insights 
-                            from the {project.title} project team.
-                        </p>
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <section className="py-16">
+        <PageContainer>
+          <h1 className="mb-6 text-4xl font-semibold text-foreground lg:text-5xl">Technical Articles</h1>
+          <p className="max-w-3xl text-lg text-muted-foreground">
+            Explore in-depth technical documentation, research findings, and insights from the {project.title} project team.
+          </p>
+        </PageContainer>
+      </section>
+
+      <section className="flex-1 pb-8">
+        <PageContainer>
+          {articles && articles.length > 0 ? (
+            <div className="space-y-6">
+              {articles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/projects/${project.slug}/articles/${article.slug}`}
+                  className="group lab-plate grid grid-cols-1 overflow-hidden rounded-2xl lg:grid-cols-3"
+                >
+                  {article.image_url ? (
+                    <div className="relative h-64 lg:h-auto">
+                      <Image
+                        src={article.image_url}
+                        alt={article.title}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 33vw"
+                        className="object-cover"
+                      />
                     </div>
-                </div>
-            </section>
-
-            {/* Articles Grid Section */}
-            <section className="bg-white flex-1">
-                <div className="container mx-auto px-6 lg:px-12">
-                    {articles && articles.length > 0 ? (
-                        <div className="space-y-8">
-                            {articles.map((article) => (
-                                <Link
-                                    key={article.id}
-                                    href={`/projects/${project.slug}/articles/${article.slug}`}
-                                    className="group block">
-                                    <div
-                                        className="grid grid-cols-1 lg:grid-cols-3 gap-8 border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-black transition-all duration-300 bg-white">
-                                        {/* Image Section */}
-                                        {article.image_url ? (
-                                            <div className="relative h-64 lg:h-auto">
-                                                <Image
-                                                    src={article.image_url}
-                                                    alt={article.title}
-                                                    fill
-                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div className="relative h-64 lg:h-auto bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                                <span className="text-6xl font-bold text-gray-300">
-                                                    {article.title.charAt(0)}
-                                                </span>
-                                            </div>
-                                        )}
-
-                                        {/* Content Section */}
-                                        <div className="lg:col-span-2 p-8 flex flex-col justify-center">
-                                            <div className="flex flex-wrap items-center gap-3 mb-4">
-                                                {article.category?.name && (
-                                                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                                                        {article.category.name}
-                                                    </span>
-                                                )}
-                                                {article.published_at && (
-                                                    <span className="text-sm text-gray-500">
-                                                        {new Date(article.published_at).toLocaleDateString('en-US', {
-                                                            year: 'numeric',
-                                                            month: 'long',
-                                                            day: 'numeric'
-                                                        })}
-                                                    </span>
-                                                )}
-                                                {article.time_to_read && (
-                                                    <>
-                                                        <span className="text-sm text-gray-500">•</span>
-                                                        <span className="text-sm text-gray-500">{article.time_to_read} min read</span>
-                                                    </>
-                                                )}
-                                            </div>
-
-                                            <h2
-                                                className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4 group-hover:text-gray-700 transition-colors">
-                                                {article.title}
-                                            </h2>
-
-                                            {article.description && (
-                                                <p className="text-gray-600 text-base leading-relaxed mb-6">
-                                                    {article.description}
-                                                </p>
-                                            )}
-
-                                            {/* Author */}
-                                            {article.author_name && (
-                                                <div className="flex items-center gap-3 mb-6">
-                                                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                                        <span className="text-sm font-bold text-gray-600">
-                                                            {article.author_name.split(' ').map((n: string) => n[0]).join('')}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-semibold text-gray-900">{article.author_name}</p>
-                                                        <p className="text-xs text-gray-500">Author</p>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            <div className="mt-auto">
-                                                <span className="text-sm font-semibold text-black group-hover:underline inline-flex items-center gap-2">
-                                                    Read Article
-                                                    <svg
-                                                        className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M9 5l7 7-7 7"/>
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-lg">
-                            <p className="text-gray-500 text-lg">No articles published yet.</p>
-                        </div>
-                    )}
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            <section className="py-20 bg-gray-50">
-                <div className="container mx-auto px-6 lg:px-12 text-center">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                        Want to Learn More?
+                  ) : (
+                    <div className="flex h-64 items-center justify-center bg-muted lg:h-auto">
+                      <span className="text-6xl font-bold text-black/10">{article.title.charAt(0)}</span>
+                    </div>
+                  )}
+                  <div className="flex flex-col justify-center p-8 lg:col-span-2">
+                    <div className="mb-4 flex flex-wrap items-center gap-3">
+                      {article.category?.name ? (
+                        <span className="rounded-full bg-purdue-gold/15 px-3 py-1 font-mono text-xs text-purdue-gold">
+                          {article.category.name}
+                        </span>
+                      ) : null}
+                      {article.published_at ? (
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(article.published_at).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </span>
+                      ) : null}
+                      {article.time_to_read ? (
+                        <span className="text-sm text-muted-foreground">{article.time_to_read} min read</span>
+                      ) : null}
+                    </div>
+                    <h2 className="mb-4 text-2xl font-semibold text-foreground group-hover:text-purdue-gold">
+                      {article.title}
                     </h2>
-                    <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                        Explore the project overview and meet our team.
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-4">
-                        <Link href={`/projects/${project.slug}`}>
-                            <Button variant="outline" size="lg" className="rounded-2xl">
-                                Back to Project
-                            </Button>
-                        </Link>
-                        <Link href={`/projects/${project.slug}/team`}>
-                            <Button variant="black" size="lg" className="rounded-2xl">
-                                Meet the Team
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-            </section>
-        </div>
-    );
+                    {article.description ? (
+                      <p className="mb-6 text-muted-foreground">{article.description}</p>
+                    ) : null}
+                    {article.author_name ? (
+                      <p className="mb-6 text-sm text-muted-foreground">{article.author_name}</p>
+                    ) : null}
+                    <span className="inline-flex items-center gap-2 text-sm font-medium text-purdue-gold">
+                      Read Article <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-black/15 py-16 text-center text-muted-foreground">
+              No articles published yet.
+            </div>
+          )}
+        </PageContainer>
+      </section>
+
+      <section className="py-16">
+        <PageContainer className="text-center">
+          <h2 className="mb-4 text-3xl font-semibold text-foreground">Want to Learn More?</h2>
+          <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
+            Explore the project overview and meet our team.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button asChild variant="outline" size="lg" className="rounded-full">
+              <Link href={`/projects/${project.slug}`}>Back to Project</Link>
+            </Button>
+            <Button asChild size="lg" className="rounded-full">
+              <Link href={`/projects/${project.slug}/team`}>Meet the Team</Link>
+            </Button>
+          </div>
+        </PageContainer>
+      </section>
+    </div>
+  )
 }

@@ -6,7 +6,6 @@ export const DASHBOARD_ROUTES = {
     MEMBERS: '/dashboard/members',
     TEAM: '/dashboard/teams',
     TEAM_OVERRIDES: '/dashboard/team-overrides',
-    EVENTS: '/dashboard/events'
 }
 
 export const NAV_LINKS = {
@@ -15,5 +14,10 @@ export const NAV_LINKS = {
     TEAM: '/team',
     EVENTS: '/events',
     CONTACT: '/contact',
-    JOIN: '/join'
+    JOIN: '/join',
 }
+
+export const JOIN_URL = 'https://mypnwlife.pnw.edu/ARCADE/club_signup'
+export const CONTACT_EMAIL = 'pnwarcade@purdue.edu'
+export const INSTAGRAM_URL = 'https://instagram.com/arcade__pnw'
+export const FALLBACK_IMAGE = '/arcade.png'

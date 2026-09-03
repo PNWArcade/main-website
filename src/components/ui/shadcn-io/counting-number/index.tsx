@@ -6,6 +6,7 @@ import {
   type UseInViewOptions,
   useInView,
   useMotionValue,
+  useReducedMotion,
   useSpring,
 } from 'motion/react';
 
@@ -37,6 +38,7 @@ function CountingNumber({
 }: CountingNumberProps) {
   const localRef = React.useRef<HTMLSpanElement>(null);
   React.useImperativeHandle(ref, () => localRef.current as HTMLSpanElement);
+  const reduced = useReducedMotion();
 
   const numberStr = number.toString();
   const decimals =
@@ -90,6 +92,19 @@ function CountingNumber({
     ? '0'.padStart(finalIntLength, '0') +
       (decimals > 0 ? decimalSeparator + '0'.repeat(decimals) : '')
     : '0' + (decimals > 0 ? decimalSeparator + '0'.repeat(decimals) : '');
+
+  if (reduced) {
+    return (
+      <span
+        ref={localRef}
+        data-slot="counting-number"
+        className={className}
+        {...props}
+      >
+        {number}
+      </span>
+    );
+  }
 
   return (
     <span

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { applyPhotoOverrideToPastPresidents } from '@/lib/chapter-team'
 import { z } from 'zod'
 
 const updateOverrideSchema = z.object({
@@ -54,6 +55,12 @@ export async function PATCH(
             console.error('Error updating override:', error)
             return NextResponse.json({ error: 'Failed to update override' }, { status: 500 })
         }
+
+        await applyPhotoOverrideToPastPresidents(
+            supabase,
+            data.member_name,
+            data.custom_image_url
+        )
 
         return NextResponse.json({ data })
     } catch (error) {

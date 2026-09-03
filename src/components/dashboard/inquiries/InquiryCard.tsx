@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/buttons/Button'
 import { cn } from '@/lib/utils'
 import { Clock, CheckCircle, Archive, Trash2 } from 'lucide-react'
 import { statusConfig } from './StatusFilter'
+import { useConfirm } from '@/components/dashboard/ui/useConfirm'
 import { type ContactStatus, type ContactSubmission } from '@/lib/schemas/inquiry'
 
 export type { ContactSubmission } from '@/lib/schemas/inquiry'
@@ -17,6 +18,7 @@ interface InquiryCardProps {
 
 export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardProps) {
     const [isUpdating, setIsUpdating] = useState(false)
+    const { confirm, dialog } = useConfirm()
 
     const status = inquiry.status || 'new'
     const config = statusConfig[status]
@@ -43,7 +45,7 @@ export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardPr
     }
 
     const handleDelete = async () => {
-        if (!confirm('Are you sure you want to delete this inquiry?')) return
+        if (!(await confirm('Delete this inquiry?', 'This cannot be undone.'))) return
         setIsUpdating(true)
         try {
             await onDelete(inquiry.id)
@@ -53,9 +55,11 @@ export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardPr
     }
 
     return (
+        <>
+        {dialog}
         <div
             className={cn(
-                "bg-white border border-gray-200 rounded-lg p-6 transition-opacity",
+                "bg-card border border-border rounded-lg p-6 transition-opacity",
                 isUpdating && "opacity-50"
             )}
         >
@@ -63,7 +67,7 @@ export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardPr
                 {/* Content */}
                 <div className="flex-1 space-y-3">
                     <div className="flex items-center gap-3">
-                        <h3 className="font-semibold text-lg text-purdue-black">
+                        <h3 className="font-semibold text-lg text-foreground">
                             {inquiry.name}
                         </h3>
                         <span className={cn(
@@ -74,15 +78,15 @@ export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardPr
                             {config.label}
                         </span>
                     </div>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                         <a href={`mailto:${inquiry.email}`} className="hover:underline">
                             {inquiry.email}
                         </a>
                     </p>
-                    <p className="text-gray-700 whitespace-pre-wrap">
+                    <p className="text-muted-foreground whitespace-pre-wrap">
                         {inquiry.message}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                         Received: {formatDate(inquiry.created_at)}
                     </p>
                 </div>
@@ -95,7 +99,7 @@ export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardPr
                             variant="outline"
                             onClick={() => handleStatusUpdate('in_progress')}
                             disabled={isUpdating}
-                            className="text-yellow-700 hover:bg-yellow-50"
+                            className="text-yellow-700 hover:bg-purdue-gold/10"
                         >
                             <Clock className="h-4 w-4 mr-1" />
                             In Progress
@@ -107,7 +111,7 @@ export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardPr
                             variant="outline"
                             onClick={() => handleStatusUpdate('resolved')}
                             disabled={isUpdating}
-                            className="text-green-700 hover:bg-green-50"
+                            className="text-green-700 hover:bg-emerald-500/10"
                         >
                             <CheckCircle className="h-4 w-4 mr-1" />
                             Resolved
@@ -119,7 +123,7 @@ export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardPr
                             variant="outline"
                             onClick={() => handleStatusUpdate('archived')}
                             disabled={isUpdating}
-                            className="text-gray-700 hover:bg-gray-50"
+                            className="text-muted-foreground hover:bg-muted"
                         >
                             <Archive className="h-4 w-4 mr-1" />
                             Archive
@@ -130,7 +134,7 @@ export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardPr
                         variant="outline"
                         onClick={handleDelete}
                         disabled={isUpdating}
-                        className="text-red-600 hover:bg-red-50"
+                        className="text-red-600 hover:bg-red-500/10"
                     >
                         <Trash2 className="h-4 w-4 mr-1" />
                         Delete
@@ -138,5 +142,6 @@ export function InquiryCard({ inquiry, onStatusUpdate, onDelete }: InquiryCardPr
                 </div>
             </div>
         </div>
+        </>
     )
 }

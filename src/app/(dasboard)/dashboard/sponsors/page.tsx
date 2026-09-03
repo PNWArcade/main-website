@@ -7,15 +7,17 @@ import ImageUploader, { uploadImageToBucket } from '@/components/ui/ImageUploade
 import { useSponsors, useCreateSponsor, useUpdateSponsor, useDeleteSponsor } from '@/hooks/useProjects'
 import { deleteImageFromBucket } from '@/lib/utils/imageCleanup'
 import type { Sponsor, SponsorTier } from '@/lib/schemas/project'
+import { useConfirm } from '@/components/dashboard/ui/useConfirm'
 
 const tierOptions: { value: SponsorTier; label: string; color: string }[] = [
-    { value: 'platinum', label: 'Platinum', color: 'bg-gray-100 text-gray-800' },
-    { value: 'gold', label: 'Gold', color: 'bg-yellow-100 text-yellow-800' },
-    { value: 'silver', label: 'Silver', color: 'bg-gray-200 text-gray-700' },
+    { value: 'platinum', label: 'Platinum', color: 'bg-secondary text-foreground' },
+    { value: 'gold', label: 'Gold', color: 'bg-purdue-gold/15 text-purdue-gold' },
+    { value: 'silver', label: 'Silver', color: 'bg-secondary text-muted-foreground' },
     { value: 'bronze', label: 'Bronze', color: 'bg-amber-100 text-amber-800' },
 ]
 
 export default function SponsorsPage() {
+    const { confirm, dialog } = useConfirm()
     const { data: sponsors, isLoading, refetch } = useSponsors()
     const createMutation = useCreateSponsor()
     const updateMutation = useUpdateSponsor()
@@ -88,7 +90,7 @@ export default function SponsorsPage() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Delete this sponsor?')) return
+        if (!(await confirm('Delete this sponsor?', 'This cannot be undone.'))) return
         await deleteMutation.mutateAsync(id)
     }
 
@@ -172,11 +174,12 @@ export default function SponsorsPage() {
 
     return (
         <div className="space-y-6">
+            {dialog}
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-purdue-black">Sponsors</h1>
-                    <p className="text-gray-500">Manage organization sponsors displayed on the home page</p>
+                    <h1 className="text-2xl font-bold text-foreground">Sponsors</h1>
+                    <p className="text-muted-foreground">Manage organization sponsors displayed on the home page</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => refetch()}>
@@ -193,7 +196,7 @@ export default function SponsorsPage() {
             {/* Loading State */}
             {isLoading && (
                 <div className="flex justify-center py-12">
-                    <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+                    <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
             )}
 
@@ -204,35 +207,35 @@ export default function SponsorsPage() {
                         <div key={tier.value}>
                             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                                 <span className={`px-3 py-1 rounded-full ${tier.color}`}>{tier.label} Sponsors</span>
-                                <span className="text-gray-400 text-sm font-normal">
+                                <span className="text-muted-foreground text-sm font-normal">
                                     ({sponsorsByTier[tier.value].length})
                                 </span>
                             </h2>
                             
                             {sponsorsByTier[tier.value].length === 0 ? (
-                                <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-                                    <p className="text-gray-400">No {tier.label.toLowerCase()} sponsors</p>
+                                <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
+                                    <p className="text-muted-foreground">No {tier.label.toLowerCase()} sponsors</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                     {sponsorsByTier[tier.value].map((sponsor) => (
-                                        <div key={sponsor.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                        <div key={sponsor.id} className="bg-card border border-border rounded-lg overflow-hidden">
                                             <div className="p-4">
                                                 {sponsor.logo_url ? (
                                                     <img src={sponsor.logo_url} alt={sponsor.name} className="h-16 w-auto object-contain mb-3 mx-auto" />
                                                 ) : (
-                                                    <div className="h-16 w-16 bg-gray-100 rounded flex items-center justify-center mb-3 mx-auto">
-                                                        <Heart className="h-8 w-8 text-gray-400" />
+                                                    <div className="h-16 w-16 bg-secondary rounded flex items-center justify-center mb-3 mx-auto">
+                                                        <Heart className="h-8 w-8 text-muted-foreground" />
                                                     </div>
                                                 )}
                                                 <h3 className="font-medium text-center">{sponsor.name}</h3>
                                                 {sponsor.description && (
-                                                    <p className="text-xs text-gray-500 text-center mt-1 line-clamp-2">{sponsor.description}</p>
+                                                    <p className="text-xs text-muted-foreground text-center mt-1 line-clamp-2">{sponsor.description}</p>
                                                 )}
                                                 <div className="flex justify-center items-center gap-2 mt-2">
                                                     {getTierBadge(sponsor.tier)}
                                                     {sponsor.order_index !== null && (
-                                                        <span className="text-xs text-gray-400">#{sponsor.order_index}</span>
+                                                        <span className="text-xs text-muted-foreground">#{sponsor.order_index}</span>
                                                     )}
                                                     {sponsor.link && (
                                                         <a href={sponsor.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
@@ -241,7 +244,7 @@ export default function SponsorsPage() {
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="border-t border-gray-100 px-4 py-2 bg-gray-50 flex justify-between">
+                                            <div className="border-t border-border px-4 py-2 bg-muted flex justify-between">
                                                 <button
                                                     onClick={() => handleStartEditing(sponsor)}
                                                     className="text-sm text-blue-600 hover:underline"
@@ -267,7 +270,7 @@ export default function SponsorsPage() {
             {/* Create Sponsor Modal */}
             {showCreate && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div className="bg-card rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <h2 className="text-xl font-bold mb-4">Add Sponsor</h2>
                         
                         {error && (
@@ -282,21 +285,21 @@ export default function SponsorsPage() {
 
                         <form onSubmit={handleCreate} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Name *</label>
                                 <input
                                     type="text"
                                     value={newSponsor.name}
                                     onChange={(e) => setNewSponsor({ ...newSponsor, name: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Tier *</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Tier *</label>
                                 <select
                                     value={newSponsor.tier}
                                     onChange={(e) => setNewSponsor({ ...newSponsor, tier: e.target.value as SponsorTier })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                 >
                                     {tierOptions.map(opt => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -304,7 +307,7 @@ export default function SponsorsPage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Logo</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Logo</label>
                                 <ImageUploader
                                     value={newSponsor.logo_url}
                                     onChange={(url) => { setNewSponsor({ ...newSponsor, logo_url: url }); setPendingLogo(null) }}
@@ -316,32 +319,32 @@ export default function SponsorsPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Description</label>
                                 <textarea
                                     value={newSponsor.description}
                                     onChange={(e) => setNewSponsor({ ...newSponsor, description: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                     rows={3}
                                     placeholder="Optional description"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Link</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Link</label>
                                 <input
                                     type="url"
                                     value={newSponsor.link}
                                     onChange={(e) => setNewSponsor({ ...newSponsor, link: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                     placeholder="https://sponsor-website.com"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Order Index</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Order Index</label>
                                 <input
                                     type="number"
                                     value={newSponsor.order_index}
                                     onChange={(e) => setNewSponsor({ ...newSponsor, order_index: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                     placeholder="Lower numbers appear first"
                                 />
                             </div>
@@ -359,7 +362,7 @@ export default function SponsorsPage() {
             {/* Edit Sponsor Modal */}
             {editingId && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div className="bg-card rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <h2 className="text-xl font-bold mb-4">Edit Sponsor</h2>
                         
                         {editError && (
@@ -374,21 +377,21 @@ export default function SponsorsPage() {
 
                         <form onSubmit={(e) => handleUpdate(e, editingId)} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Name *</label>
                                 <input
                                     type="text"
                                     value={editSponsor.name}
                                     onChange={(e) => setEditSponsor({ ...editSponsor, name: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Tier *</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Tier *</label>
                                 <select
                                     value={editSponsor.tier}
                                     onChange={(e) => setEditSponsor({ ...editSponsor, tier: e.target.value as SponsorTier })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                 >
                                     {tierOptions.map(opt => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -396,7 +399,7 @@ export default function SponsorsPage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Logo</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Logo</label>
                                 <ImageUploader
                                     value={editSponsor.logo_url}
                                     onChange={(url) => { setEditSponsor({ ...editSponsor, logo_url: url }); setEditPendingLogo(null) }}
@@ -408,32 +411,32 @@ export default function SponsorsPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Description</label>
                                 <textarea
                                     value={editSponsor.description}
                                     onChange={(e) => setEditSponsor({ ...editSponsor, description: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                     rows={3}
                                     placeholder="Optional description"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Link</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Link</label>
                                 <input
                                     type="url"
                                     value={editSponsor.link}
                                     onChange={(e) => setEditSponsor({ ...editSponsor, link: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                     placeholder="https://sponsor-website.com"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Order Index</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Order Index</label>
                                 <input
                                     type="number"
                                     value={editSponsor.order_index}
                                     onChange={(e) => setEditSponsor({ ...editSponsor, order_index: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-input rounded-lg px-3 py-2"
                                     placeholder="Lower numbers appear first"
                                 />
                             </div>

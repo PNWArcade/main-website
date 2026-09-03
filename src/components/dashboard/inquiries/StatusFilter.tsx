@@ -11,22 +11,22 @@ export const statusConfig: Record<ContactStatus, { label: string; icon: typeof M
     new: {
         label: 'New',
         icon: Mail,
-        className: 'bg-blue-100 text-blue-800'
+        className: 'bg-purdue-gold/15 text-purdue-gold'
     },
     in_progress: {
         label: 'In Progress',
         icon: Clock,
-        className: 'bg-yellow-100 text-yellow-800'
+        className: 'bg-purdue-gold/15 text-purdue-gold'
     },
     resolved: {
         label: 'Resolved',
         icon: CheckCircle,
-        className: 'bg-green-100 text-green-800'
+        className: 'bg-emerald-500/15 text-emerald-300'
     },
     archived: {
         label: 'Archived',
         icon: Archive,
-        className: 'bg-gray-100 text-gray-800'
+        className: 'bg-secondary text-foreground'
     }
 }
 

@@ -1,19 +1,20 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Exo, Roboto_Mono } from "next/font/google"
 import "./globals.css"
 
-// 🧭 Import layout components
 import { NavbarWrapper } from "@/components/layout/navbar/NavbarWrapper"
 import { Footer } from "@/components/layout/Footer/Footer"
+import { FooterWrapper } from "@/components/layout/Footer/FooterWrapper"
 import { QueryProvider } from "@/providers/QueryProvider"
+import { MotionPreferences } from "@/components/motion/MotionPreferences"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const exo = Exo({
+  variable: "--font-exo",
   subsets: ["latin"],
 })
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
   subsets: ["latin"],
 })
 
@@ -26,21 +27,27 @@ export const metadata: Metadata = {
   },
 }
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${exo.variable} ${robotoMono.variable} font-sans antialiased bg-background text-foreground`}
       >
         <QueryProvider>
-          <NavbarWrapper />
-          <main className="">{children}</main>
-          <Footer />
+          <MotionPreferences>
+            <a href="#main-content" className="skip-link">
+              Skip to content
+            </a>
+            <NavbarWrapper />
+            <main id="main-content">{children}</main>
+            <FooterWrapper>
+              <Footer />
+            </FooterWrapper>
+          </MotionPreferences>
         </QueryProvider>
       </body>
     </html>

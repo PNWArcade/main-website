@@ -1,44 +1,40 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from "next/image"
+import Link from "next/link"
+import { FALLBACK_IMAGE } from "@/config/routes"
 
 interface SubProjectCardProps {
-    href: string;
-    imageSrc: string;
-    title: string;
-    description: string;
-    imageAlt?: string;
+  href: string
+  imageSrc: string
+  title: string
+  description: string
+  imageAlt?: string
 }
 
-export default function SubProjectCard({ 
-    href, 
-    imageSrc, 
-    title, 
-    description,
-    imageAlt 
+export default function SubProjectCard({
+  href,
+  imageSrc,
+  title,
+  description,
+  imageAlt,
 }: SubProjectCardProps) {
-    return (
-        <Link href={href} className="group">
-            <div className="bg-white border-2 border-gray-200 overflow-hidden rounded-2xl hover:border-black transition-all duration-300 h-full flex flex-col">
-                <div className="relative h-48 w-full overflow-hidden">
-                    <Image
-                        src={imageSrc}
-                        alt={imageAlt || title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-gray-700">
-                        {title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4 flex-1">
-                        {description}
-                    </p>
-                    <span className="text-sm font-semibold text-black group-hover:underline">
-                        Learn More →
-                    </span>
-                </div>
-            </div>
-        </Link>
-    );
+  return (
+    <Link href={href} className="group lab-plate flex h-full flex-col overflow-hidden rounded-2xl">
+      <div className="relative h-48 w-full overflow-hidden bg-muted">
+        <Image
+          src={imageSrc || FALLBACK_IMAGE}
+          alt={imageAlt || title}
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+        />
+      </div>
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="mb-2 text-xl font-semibold text-foreground group-hover:text-purdue-gold">
+          {title}
+        </h3>
+        <p className="mb-4 flex-1 text-sm text-muted-foreground">{description}</p>
+        <span className="text-sm font-medium text-purdue-gold">Learn More →</span>
+      </div>
+    </Link>
+  )
 }

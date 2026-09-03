@@ -1,54 +1,40 @@
-import { StaticImageData } from "next/image";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import Image, { StaticImageData } from "next/image"
+import { cn } from "@/lib/utils"
+import { FALLBACK_IMAGE } from "@/config/routes"
 
-const formerPresidentCardVariants = cva(
-  "rounded-lg shadow-md p-6 transition-shadow duration-300",
-  {
-    variants: {
-      variant: {
-        default: "bg-white hover:shadow-xl",
-        outlined: "bg-white border-2 border-gray-200 hover:border-purdue-gold hover:shadow-lg",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
-
-interface FormerPresidentCardProps extends VariantProps<typeof formerPresidentCardVariants> {
-  image: StaticImageData | string;
-  name: string;
-  tenure: string;
-  role: string;
-  className?: string;
+interface FormerPresidentCardProps {
+  image: StaticImageData | string
+  name: string
+  tenure: string
+  role?: string
+  className?: string
 }
 
 export default function FormerPresidentCard({
   image,
   name,
   tenure,
-  role,
-  variant,
-  className
+  role = "Former President",
+  className,
 }: FormerPresidentCardProps) {
-  const imageSrc = typeof image === 'string' ? image : image.src;
+  const imageSrc = typeof image === "string" ? image || FALLBACK_IMAGE : image
 
   return (
-    <div className={cn(formerPresidentCardVariants({ variant }), className)}>
-      <div className="flex items-center gap-4">
-        <img
+    <article className={cn("lab-plate lift flex items-center gap-4 rounded-2xl p-5", className)}>
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-muted">
+        <Image
           src={imageSrc}
           alt={`Former President ${name}`}
-          className="w-20 h-20 rounded-full object-cover"
+          fill
+          sizes="80px"
+          className="object-cover"
         />
-        <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-800">{name}</h3>
-          <p className="text-sm text-gray-600">{role}</p>
-          <p className="text-sm text-gray-500">{tenure}</p>
-        </div>
       </div>
-    </div>
-  );
+      <div className="min-w-0">
+        <h3 className="truncate text-lg font-semibold text-foreground">{name}</h3>
+        <p className="font-mono text-xs tracking-wide text-purdue-gold uppercase">{role}</p>
+        <p className="text-sm text-muted-foreground">{tenure}</p>
+      </div>
+    </article>
+  )
 }

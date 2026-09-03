@@ -1,140 +1,168 @@
-// components/layout/Navbar.tsx
 "use client"
 
 import Link from "next/link"
 import Image from "next/image"
-import {useState, useEffect} from "react"
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
-import {faBars, faXmark} from "@fortawesome/free-solid-svg-icons"
-import {Button} from '@/components/ui/buttons/Button'
-import {NAV_LINKS} from "@/config/routes"
-import ArcadePNW from "../../../../../public/arcade.png";
+import { useEffect, useRef, useState } from "react"
+import { Menu, X } from "lucide-react"
+import { Button } from "@/components/ui/buttons/Button"
+import { JOIN_URL, NAV_LINKS } from "@/config/routes"
 
 interface NavbarProps {
-    isHomePage?: boolean
+  isHomePage?: boolean
 }
 
+const links = [
+  { name: "Home", href: NAV_LINKS.HOME },
+  { name: "Projects", href: NAV_LINKS.PROJECTS },
+  { name: "Team", href: NAV_LINKS.TEAM },
+  { name: "Events", href: NAV_LINKS.EVENTS },
+  { name: "Contact", href: NAV_LINKS.CONTACT },
+]
+
 export function Navbar({ isHomePage = false }: NavbarProps) {
-    const [open,
-        setOpen] = useState(false)
-    const [isScrolled, setIsScrolled] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const toggleRef = useRef<HTMLButtonElement>(null)
+  const menuId = "site-mobile-menu"
+  const overHero = isHomePage && !isScrolled
 
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 0)
-        }
-        window.addEventListener("scroll", handleScroll)
-        return () => window.removeEventListener("scroll", handleScroll)
-    }, [])
+  useEffect(() => {
+    const update = () => {
+      if (!isHomePage) {
+        setIsScrolled(true)
+        return
+      }
+      setIsScrolled(window.scrollY > window.innerHeight * 0.72)
+    }
 
-    const links = [
-        {
-            name: "Home",
-            href: NAV_LINKS.HOME
-        }, {
-            name: "Projects",
-            href: NAV_LINKS.PROJECTS
-        }, {
-            name: "Team",
-            href: NAV_LINKS.TEAM
-        }, {
-            name: "Events",
-            href: NAV_LINKS.EVENTS
-        }, {
-            name: "Contact",
-            href: NAV_LINKS.CONTACT
-        }
-    ]
-    return (
-        <>
-            <style>{`
-                @keyframes slideDownFade {
-                    0% {
-                        opacity: 0;
-                        transform: translateY(-50px);
-                    }
-                    100% {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                .navbar-pop {
-                    animation: slideDownFade 0.6s ease-out 2s forwards;
-                    opacity: 0;
-                }
-            `}</style>
-            <header
-                className="navbar-pop w-full bg-transparent top-0 fixed left-0 z-50">
-            <nav className={`relative mx-auto mt-3 w-[min(1200px,calc(100%-2rem))] rounded-[28px] px-4 py-3 sm:px-6 lg:px-8 transition-all duration-300 backdrop-blur-md border border-white/20 shadow-lg ${isScrolled || !isHomePage ? 'bg-black/40 backdrop-blur-xl border-white/15 shadow-xl' : 'bg-white/10'}`}>
-                <div className="flex items-center justify-between gap-4">
-                <Link href="/" className="flex items-center gap-3 shrink-0">
-                    <Image
-                        src={ArcadePNW}
-                        priority={true}
-                        loading="eager"
-                        alt="Arcade PNW"
-                        className="w-auto h-9 sm:h-10 md:h-11"/>
+    update()
+    window.addEventListener("scroll", update, { passive: true })
+    window.addEventListener("resize", update)
+    return () => {
+      window.removeEventListener("scroll", update)
+      window.removeEventListener("resize", update)
+    }
+  }, [isHomePage])
+
+  useEffect(() => {
+    if (!open) return
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false)
+        toggleRef.current?.focus()
+      }
+    }
+
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [open])
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : ""
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [open])
+
+  return (
+    <header className="fixed top-0 left-0 z-50 w-full">
+      <nav
+        className={`relative mx-auto mt-3 w-[min(1200px,calc(100%-1.5rem))] rounded-full border px-4 py-2.5 transition-colors duration-200 sm:px-6 ${
+          overHero
+            ? "border-white/20 bg-white/10 backdrop-blur-md"
+            : "border-black/10 bg-white shadow-sm backdrop-blur-xl"
+        }`}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <Link href="/" className="flex shrink-0 items-center gap-3">
+            <Image
+              src="/arcade.png"
+              alt="Arcade PNW"
+              width={160}
+              height={44}
+              priority
+              className="h-9 w-auto sm:h-10"
+              style={{ width: "auto", height: "auto" }}
+            />
+          </Link>
+
+          <div className="hidden flex-1 items-center justify-center gap-1 md:flex">
+            {links.map((link) => (
+              <Button
+                key={link.name}
+                asChild
+                variant="ghost"
+                size="md"
+                className={`rounded-full px-4 text-sm ${
+                  overHero
+                    ? "text-white/90 hover:bg-white/15 hover:text-white"
+                    : "text-foreground hover:bg-black/5 hover:text-foreground"
+                }`}
+              >
+                <Link href={link.href}>{link.name}</Link>
+              </Button>
+            ))}
+          </div>
+
+          <div className="hidden shrink-0 md:flex">
+            <Button
+              asChild
+              size="sm"
+              className="rounded-full bg-purdue-gold px-5 text-purdue-black hover:bg-purdue-dust"
+            >
+              <Link href={JOIN_URL} target="_blank" rel="noopener noreferrer">
+                Join Us
+              </Link>
+            </Button>
+          </div>
+
+          <Button
+            ref={toggleRef}
+            className={`shrink-0 md:hidden ${overHero ? "text-white hover:bg-white/15" : "text-foreground hover:bg-black/5"}`}
+            variant="ghost"
+            size="icon"
+            onClick={() => setOpen((current) => !current)}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls={menuId}
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
+      </nav>
+
+      {open ? (
+        <div
+          id={menuId}
+          className="mx-3 mt-2 rounded-3xl border border-black/10 bg-white p-4 shadow-lg md:hidden"
+        >
+          <div className="flex flex-col gap-1">
+            {links.map((link) => (
+              <Button
+                key={link.name}
+                asChild
+                variant="ghost"
+                className="justify-start text-foreground hover:bg-black/5"
+              >
+                <Link href={link.href} onClick={() => setOpen(false)}>
+                  {link.name}
                 </Link>
-
-                {/* Desktop links - Center */}
-                <div className="hidden md:flex items-center gap-1 lg:gap-2 xl:gap-3 flex-1 justify-center">
-                    {links.map((link) => (
-                        <Link key={link.name} href={link.href} className="cursor-pointer">
-                            <Button
-                                variant="ghost"
-                                size="md"
-                                className="text-white/95 text-sm lg:text-base hover:bg-white/20 whitespace-nowrap rounded-full px-4 py-2 font-medium">
-                                {link.name}
-                            </Button>
-                        </Link>
-                    ))}
-                </div>
-
-                <div className="hidden md:flex items-center gap-2 shrink-0">
-                    <Link href="https://mypnwlife.pnw.edu/ARCADE/club_signup" className="cursor-pointer">
-                        <Button className="border border-white/35 bg-white/25 text-white hover:bg-white/35 text-sm rounded-2xl px-5 py-2 font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]" variant="default" size="sm">
-                            Join Us
-                        </Button>
-                    </Link>
-                </div>
-
-                {/* Mobile toggle */}
-                <Button
-                    className="md:hidden shrink-0"
-                    onClick={() => setOpen(!open)}
-                    aria-label="Toggle menu">
-                    <FontAwesomeIcon
-                        icon={open
-                        ? faXmark
-                        : faBars}
-                        className="w-6 h-6"/>
-                </Button>
-                </div>
-            </nav>
-
-            {/* Mobile menu */}
-            {open && (
-                <div
-                    className="md:hidden mx-4 mt-2 rounded-2xl bg-black/30 p-4 flex flex-col items-center gap-2 backdrop-blur-md">
-                    {links.map((link) => (
-                        <Link key={link.name} href={link.href} className="cursor-pointer">
-                            <Button
-                                variant="ghost"
-                                size="default"
-                                className="text-white/95 hover:bg-white/20"
-                                onClick={() => setOpen(false)}>
-                                {link.name}
-                            </Button>
-                        </Link>
-                    ))}
-                    <Link href="https://mypnwlife.pnw.edu/ARCADE/club_signup" className="cursor-pointer">
-                        <Button variant="default" size="default" className="border border-white/35 bg-white/25 text-white hover:bg-white/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]" onClick={() => setOpen(false)}>
-                            Get Started
-                        </Button>
-                    </Link>
-                </div>
-            )}
-        </header>
-        </>
-    )
+              </Button>
+            ))}
+            <Button asChild className="mt-2 rounded-full">
+              <Link
+                href={JOIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+              >
+                Get Started
+              </Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </header>
+  )
 }

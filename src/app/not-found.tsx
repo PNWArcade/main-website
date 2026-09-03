@@ -1,32 +1,21 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/buttons/Button"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons"
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center text-center bg-linear-to-b from-background to-muted/30 px-6">
-      <div className="flex flex-col items-center gap-6">
-        <div className="flex items-center justify-center gap-3">
-          <FontAwesomeIcon icon={faTriangleExclamation} className="size-10 text-primary" />
-          <h1 className="text-5xl font-bold tracking-tight text-foreground">
-            404
-          </h1>
-        </div>
-
-        <p className="max-w-md text-lg text-muted-foreground">
-          Oops! The page you’re looking for doesn’t exist.  
-          It might’ve been moved, deleted, or maybe you followed a bad link.
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center">
+      <div className="lab-grid pointer-events-none absolute inset-0 opacity-30" />
+      <div className="relative">
+        <p className="font-mono text-xs tracking-[0.3em] text-purdue-gold uppercase">Signal lost</p>
+        <h1 className="mt-4 text-7xl font-semibold tracking-tight text-foreground">404</h1>
+        <p className="mx-auto mt-4 max-w-md text-muted-foreground">
+          The page you’re looking for doesn’t exist. It might’ve been moved, deleted, or maybe you followed a bad link.
         </p>
-
-        <Button asChild size="lg" variant="default" className="mt-4">
+        <Button asChild size="lg" className="mt-8 rounded-full">
           <Link href="/">Back to Home</Link>
         </Button>
-
-        <div className="mt-8 text-sm text-muted-foreground">
-          <p> Purdue Northwest ARCADE</p>
-        </div>
+        <p className="mt-8 font-mono text-xs text-muted-foreground">Purdue Northwest ARCADE</p>
       </div>
-    </main>
+    </div>
   )
 }

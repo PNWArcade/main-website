@@ -1,55 +1,36 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import Link from "next/link"
+import Image from "next/image"
+import { cn } from "@/lib/utils"
+import { FALLBACK_IMAGE } from "@/config/routes"
 
-const projectCardVariants = cva(
-    "group relative h-64 rounded-lg overflow-hidden transition-all duration-300",
-    {
-        variants: {
-            variant: {
-                default: "border border-transparent hover:border-purdue-gold",
-                elevated: "shadow-md hover:shadow-xl border border-gray-200",
-            },
-        },
-        defaultVariants: {
-            variant: "default",
-        },
-    }
-);
-
-interface ProjectCardProps extends VariantProps<typeof projectCardVariants> {
-    title: string;
-    image: string;
-    link: string;
-    category?: string;
-    className?: string;
+interface ProjectCardProps {
+  title: string
+  image: string
+  link: string
+  category?: string
+  className?: string
 }
 
-export default function ProjectCard({ title, image, link, category = "CATEGORY", variant, className }: ProjectCardProps) {
-    return (
-        <Link
-            href={link}
-            className={cn(projectCardVariants({ variant }), className)}>
-            {/* Background Image */}
-            <div className="absolute inset-0">
-                <Image
-                    src={image}
-                    alt={title}
-                    fill
-                    className="object-cover"
-                />
-            </div>
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-linear-to-t from-white via-white/5 to-transparent z-10"></div>
-            {/* Fallback background if no image */}
-            <div className="absolute inset-0 bg-gray-100 -z-10"></div>
-            {/* Content */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-                <h3 className="text-purdue-black font-semibold text-lg group-hover:text-purdue-gold transition-colors">
-                    {title}
-                </h3>
-            </div>
-        </Link>
-    );
+export default function ProjectCard({ title, image, link, className }: ProjectCardProps) {
+  return (
+    <Link
+      href={link}
+      className={cn(
+        "group lift relative h-64 overflow-hidden rounded-2xl border border-black/10",
+        className
+      )}
+    >
+      <Image
+        src={image || FALLBACK_IMAGE}
+        alt={title}
+        fill
+        sizes="(max-width: 768px) 100vw, 20vw"
+        className="object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+      />
+      <div className="absolute inset-0 bg-linear-to-t from-background via-background/20 to-transparent" />
+      <div className="absolute right-0 bottom-0 left-0 p-4">
+        <h3 className="font-semibold text-foreground group-hover:text-purdue-gold">{title}</h3>
+      </div>
+    </Link>
+  )
 }

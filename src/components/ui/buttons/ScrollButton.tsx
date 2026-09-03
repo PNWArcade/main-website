@@ -40,8 +40,9 @@ const ScrollButton = forwardRef<HTMLButtonElement, ScrollButtonProps>(
         const handleClick = () => {
             const element = document.getElementById(targetId);
             if (element) {
+                const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
                 element.scrollIntoView({
-                    behavior: 'smooth',
+                    behavior: reduced ? 'auto' : 'smooth',
                     block: 'start',
                 });
             }

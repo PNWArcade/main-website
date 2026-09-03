@@ -22,6 +22,8 @@ export interface PastPresident {
     name: string
     photo_url: string | null
     year: string
+    linkedin_url?: string | null
+    email?: string | null
 }
 
 interface TeamResponse {

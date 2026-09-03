@@ -1,15 +1,9 @@
 "use client"
 
 import { useQuery } from '@tanstack/react-query'
+import type { PnwEvent } from '@/lib/pnw-events'
 
-export interface PnwEvent {
-    eventId: string
-    eventName: string
-    eventDates: string
-    eventLocation: string
-    eventPicture: string
-    eventUrl: string
-}
+export type { PnwEvent }
 
 interface EventsResponse {
     data: PnwEvent[]

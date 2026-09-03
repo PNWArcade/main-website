@@ -15,7 +15,7 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
         switch (node.type) {
             case 'paragraph':
                 return (
-                    <p key={index} className="mb-6 text-gray-700 leading-relaxed">
+                    <p key={index} className="mb-6 text-muted-foreground leading-relaxed">
                         {node.content?.map((child: any, i: number) => renderInline(child, i))}
                     </p>
                 );
@@ -23,12 +23,12 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
             case 'heading':
                 const level = node.attrs?.level || 2;
                 const headingClasses: Record<number, string> = {
-                    1: 'text-4xl font-bold text-gray-900 mb-6 mt-12',
-                    2: 'text-3xl font-bold text-gray-900 mb-4 mt-10',
-                    3: 'text-2xl font-bold text-gray-900 mb-3 mt-8',
-                    4: 'text-xl font-bold text-gray-900 mb-2 mt-6',
-                    5: 'text-lg font-bold text-gray-900 mb-2 mt-4',
-                    6: 'text-base font-bold text-gray-900 mb-2 mt-4'
+                    1: 'text-4xl font-bold text-foreground mb-6 mt-12',
+                    2: 'text-3xl font-bold text-foreground mb-4 mt-10',
+                    3: 'text-2xl font-bold text-foreground mb-3 mt-8',
+                    4: 'text-xl font-bold text-foreground mb-2 mt-6',
+                    5: 'text-lg font-bold text-foreground mb-2 mt-4',
+                    6: 'text-base font-bold text-foreground mb-2 mt-4'
                 };
                 const HeadingComponent = level === 1 ? 'h1' : level === 2 ? 'h2' : level === 3 ? 'h3' : level === 4 ? 'h4' : level === 5 ? 'h5' : 'h6';
                 return React.createElement(
@@ -39,14 +39,14 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
 
             case 'bulletList':
                 return (
-                    <ul key={index} className="list-disc list-inside mb-6 space-y-2 text-gray-700">
+                    <ul key={index} className="list-disc list-inside mb-6 space-y-2 text-muted-foreground">
                         {node.content?.map((child: any, i: number) => renderNode(child, i))}
                     </ul>
                 );
 
             case 'orderedList':
                 return (
-                    <ol key={index} className="list-decimal list-inside mb-6 space-y-2 text-gray-700">
+                    <ol key={index} className="list-decimal list-inside mb-6 space-y-2 text-muted-foreground">
                         {node.content?.map((child: any, i: number) => renderNode(child, i))}
                     </ol>
                 );
@@ -69,7 +69,7 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
 
             case 'blockquote':
                 return (
-                    <blockquote key={index} className="border-l-4 border-gray-300 pl-6 my-6 italic text-gray-600">
+                    <blockquote key={index} className="border-l-4 border-gray-300 pl-6 my-6 italic text-muted-foreground">
                         {node.content?.map((child: any, i: number) => renderNode(child, i))}
                     </blockquote>
                 );
@@ -99,7 +99,7 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
                             className="rounded-xl w-full"
                         />
                         {node.attrs?.title && (
-                            <figcaption className="text-center text-sm text-gray-600 mt-2">
+                            <figcaption className="text-center text-sm text-muted-foreground mt-2">
                                 {node.attrs.title}
                             </figcaption>
                         )}
@@ -110,7 +110,7 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
                 return (
                     <div key={index} className="my-8 overflow-x-auto">
                         <table className="min-w-full border-2 border-gray-300 rounded-lg overflow-hidden">
-                            <thead className="bg-gray-900 text-white">
+                            <thead className="bg-muted text-foreground">
                                 <tr>
                                     {node.content?.headers?.map((header: string, i: number) => (
                                         <th key={i} className="px-6 py-3 text-left text-sm font-semibold border-r border-gray-700 last:border-r-0">
@@ -121,9 +121,9 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {node.content?.rows?.map((row: string[], rowIndex: number) => (
-                                    <tr key={rowIndex} className="hover:bg-gray-50">
+                                    <tr key={rowIndex} className="hover:bg-muted">
                                         {row.map((cell: string, cellIndex: number) => (
-                                            <td key={cellIndex} className="px-6 py-4 text-sm text-gray-700 border-r border-gray-200 last:border-r-0">
+                                            <td key={cellIndex} className="px-6 py-4 text-sm text-muted-foreground border-r border-black/10 last:border-r-0">
                                                 {cell}
                                             </td>
                                         ))}
@@ -138,8 +138,8 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
                 const chartData = node.content;
                 if (chartData?.type === 'bar') {
                     return (
-                        <div key={index} className="my-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
-                            <h4 className="text-lg font-semibold text-gray-900 mb-6 text-center">
+                        <div key={index} className="my-8 p-6 bg-muted rounded-xl border border-black/10">
+                            <h4 className="text-lg font-semibold text-foreground mb-6 text-center">
                                 {chartData.title}
                             </h4>
                             <div className="space-y-4">
@@ -150,7 +150,7 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
                                     
                                     return (
                                         <div key={i} className="space-y-2">
-                                            <div className="text-sm font-medium text-gray-700">{item.label}</div>
+                                            <div className="text-sm font-medium text-muted-foreground">{item.label}</div>
                                             <div className="flex gap-2 items-center">
                                                 <span className="text-xs text-gray-500 w-20">Original:</span>
                                                 <div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
@@ -180,11 +180,11 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
                             <div className="mt-6 flex justify-center gap-6 text-sm">
                                 <div className="flex items-center gap-2">
                                     <div className="w-4 h-4 bg-red-500 rounded"></div>
-                                    <span className="text-gray-600">Original</span>
+                                    <span className="text-muted-foreground">Original</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-4 h-4 bg-green-500 rounded"></div>
-                                    <span className="text-gray-600">Optimized</span>
+                                    <span className="text-muted-foreground">Optimized</span>
                                 </div>
                             </div>
                         </div>
@@ -219,7 +219,7 @@ export default function TiptapRenderer({ content }: TiptapRendererProps) {
                             break;
                         case 'code':
                             text = (
-                                <code key={`code-${index}`} className="bg-gray-100 text-red-600 px-2 py-1 rounded text-sm font-mono">
+                                <code key={`code-${index}`} className="bg-muted text-red-600 px-2 py-1 rounded text-sm font-mono">
                                     {text}
                                 </code>
                             );

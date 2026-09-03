@@ -8,8 +8,8 @@ const infoCardVariants = cva(
     variants: {
       variant: {
         default: "bg-white text-gray-800",
-        primary: "bg-primary text-white",
-        secondary: "bg-secondary text-white",
+        primary: "bg-primary text-primary-foreground",
+        secondary: "bg-secondary text-secondary-foreground",
       },
       size: {
         default: "p-6",

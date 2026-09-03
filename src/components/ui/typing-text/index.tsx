@@ -1,27 +1,27 @@
-'use client';
+'use client'
 
-import { ElementType, useEffect, useRef, useState, useMemo, useCallback, forwardRef } from 'react';
-import { gsap } from 'gsap';
+import { ElementType, useEffect, useRef, useState, useMemo, useCallback, forwardRef } from 'react'
+import { useReducedMotion } from 'motion/react'
 
 interface TypingTextProps {
-  className?: string;
-  showCursor?: boolean;
-  hideCursorWhileTyping?: boolean;
-  cursorCharacter?: string | React.ReactNode;
-  cursorBlinkDuration?: number;
-  cursorClassName?: string;
-  text: string | string[];
-  as?: ElementType;
-  typingSpeed?: number;
-  initialDelay?: number;
-  pauseDuration?: number;
-  deletingSpeed?: number;
-  loop?: boolean;
-  textColors?: string[];
-  variableSpeed?: { min: number; max: number };
-  onSentenceComplete?: (sentence: string, index: number) => void;
-  startOnVisible?: boolean;
-  reverseMode?: boolean;
+  className?: string
+  showCursor?: boolean
+  hideCursorWhileTyping?: boolean
+  cursorCharacter?: string | React.ReactNode
+  cursorBlinkDuration?: number
+  cursorClassName?: string
+  text: string | string[]
+  as?: ElementType
+  typingSpeed?: number
+  initialDelay?: number
+  pauseDuration?: number
+  deletingSpeed?: number
+  loop?: boolean
+  textColors?: string[]
+  variableSpeed?: { min: number; max: number }
+  onSentenceComplete?: (sentence: string, index: number) => void
+  startOnVisible?: boolean
+  reverseMode?: boolean
 }
 
 const TypingText = forwardRef<HTMLElement, TypingTextProps & React.HTMLAttributes<HTMLElement>>(({
@@ -45,123 +45,109 @@ const TypingText = forwardRef<HTMLElement, TypingTextProps & React.HTMLAttribute
   reverseMode = false,
   ...props
 }, forwardedRef) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentCharIndex, setCurrentCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(!startOnVisible);
-  const cursorRef = useRef<HTMLSpanElement>(null);
-  const containerRef = useRef<HTMLElement>(null);
-
-  const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
+  const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text])
+  const reduced = useReducedMotion()
+  const [displayedText, setDisplayedText] = useState(textArray[0])
+  const [currentCharIndex, setCurrentCharIndex] = useState(textArray[0].length)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [currentTextIndex, setCurrentTextIndex] = useState(0)
+  const [isVisible, setIsVisible] = useState(!startOnVisible)
+  const cursorRef = useRef<HTMLSpanElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
 
   const getRandomSpeed = useCallback(() => {
-    if (!variableSpeed) return typingSpeed;
-    const { min, max } = variableSpeed;
-    return Math.random() * (max - min) + min;
-  }, [variableSpeed, typingSpeed]);
+    if (!variableSpeed) return typingSpeed
+    const { min, max } = variableSpeed
+    return Math.random() * (max - min) + min
+  }, [variableSpeed, typingSpeed])
 
   const getCurrentTextColor = () => {
-    if (textColors.length === 0) return 'currentColor';
-    return textColors[currentTextIndex % textColors.length];
-  };
+    if (textColors.length === 0) return 'currentColor'
+    return textColors[currentTextIndex % textColors.length]
+  }
 
-  // Merge refs
   const setRefs = useCallback((node: HTMLElement | null) => {
-    containerRef.current = node;
+    containerRef.current = node
     if (typeof forwardedRef === 'function') {
-      forwardedRef(node);
+      forwardedRef(node)
     } else if (forwardedRef) {
-      forwardedRef.current = node;
+      forwardedRef.current = node
     }
-  }, [forwardedRef]);
+  }, [forwardedRef])
 
   useEffect(() => {
-    if (!startOnVisible) return;
-    
-    const currentContainer = containerRef.current;
-    if (!currentContainer) return;
+    if (!startOnVisible) return
+
+    const currentContainer = containerRef.current
+    if (!currentContainer) return
 
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            setIsVisible(true);
+            setIsVisible(true)
           }
-        });
+        })
       },
       { threshold: 0.1 }
-    );
+    )
 
-    observer.observe(currentContainer);
-    return () => observer.disconnect();
-  }, [startOnVisible]);
-
-  useEffect(() => {
-    if (showCursor && cursorRef.current) {
-      gsap.set(cursorRef.current, { opacity: 1 });
-      gsap.to(cursorRef.current, {
-        opacity: 0,
-        duration: cursorBlinkDuration,
-        repeat: -1,
-        yoyo: true,
-        ease: 'power2.inOut'
-      });
-    }
-  }, [showCursor, cursorBlinkDuration]);
+    observer.observe(currentContainer)
+    return () => observer.disconnect()
+  }, [startOnVisible])
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (reduced || !isVisible) return
 
-    let timeout: NodeJS.Timeout;
+    let timeout: NodeJS.Timeout
 
-    const currentText = textArray[currentTextIndex];
-    const processedText = reverseMode ? currentText.split('').reverse().join('') : currentText;
+    const currentText = textArray[currentTextIndex]
+    const processedText = reverseMode ? currentText.split('').reverse().join('') : currentText
 
     const executeTypingAnimation = () => {
       if (isDeleting) {
         if (displayedText === '') {
-          setIsDeleting(false);
+          setIsDeleting(false)
           if (currentTextIndex === textArray.length - 1 && !loop) {
-            return;
+            return
           }
 
           if (onSentenceComplete) {
-            onSentenceComplete(textArray[currentTextIndex], currentTextIndex);
+            onSentenceComplete(textArray[currentTextIndex], currentTextIndex)
           }
 
-          setCurrentTextIndex(prev => (prev + 1) % textArray.length);
-          setCurrentCharIndex(0);
-          timeout = setTimeout(() => {}, pauseDuration);
+          setCurrentTextIndex(prev => (prev + 1) % textArray.length)
+          setCurrentCharIndex(0)
+          timeout = setTimeout(() => {}, pauseDuration)
         } else {
           timeout = setTimeout(() => {
-            setDisplayedText(prev => prev.slice(0, -1));
-          }, deletingSpeed);
+            setDisplayedText(prev => prev.slice(0, -1))
+          }, deletingSpeed)
         }
       } else {
         if (currentCharIndex < processedText.length) {
           timeout = setTimeout(
             () => {
-              setDisplayedText(prev => prev + processedText[currentCharIndex]);
-              setCurrentCharIndex(prev => prev + 1);
+              setDisplayedText(prev => prev + processedText[currentCharIndex])
+              setCurrentCharIndex(prev => prev + 1)
             },
             variableSpeed ? getRandomSpeed() : typingSpeed
-          );
+          )
         } else if (textArray.length > 1) {
           timeout = setTimeout(() => {
-            setIsDeleting(true);
-          }, pauseDuration);
+            setIsDeleting(true)
+          }, pauseDuration)
         }
       }
-    };
-
-    if (currentCharIndex === 0 && !isDeleting && displayedText === '') {
-      timeout = setTimeout(executeTypingAnimation, initialDelay);
-    } else {
-      executeTypingAnimation();
     }
 
-    return () => clearTimeout(timeout);
+    if (currentCharIndex === 0 && !isDeleting && displayedText === '') {
+      timeout = setTimeout(executeTypingAnimation, initialDelay)
+    } else {
+      executeTypingAnimation()
+    }
+
+    return () => clearTimeout(timeout)
   }, [
     currentCharIndex,
     displayedText,
@@ -177,14 +163,14 @@ const TypingText = forwardRef<HTMLElement, TypingTextProps & React.HTMLAttribute
     reverseMode,
     variableSpeed,
     onSentenceComplete,
-    getRandomSpeed
-  ]);
+    getRandomSpeed,
+    reduced,
+  ])
 
   const shouldHideCursor =
-    hideCursorWhileTyping && (currentCharIndex < textArray[currentTextIndex].length || isDeleting);
+    hideCursorWhileTyping && (currentCharIndex < textArray[currentTextIndex].length || isDeleting)
 
-  // Check if Component is a string (HTML element) or custom component
-  const isIntrinsicElement = typeof Component === 'string';
+  const isIntrinsicElement = typeof Component === 'string'
 
   return (
     <Component
@@ -193,24 +179,25 @@ const TypingText = forwardRef<HTMLElement, TypingTextProps & React.HTMLAttribute
       {...props}
     >
       <span className="inline" style={{ color: getCurrentTextColor() }}>
-        {displayedText}
+        {displayedText || (reduced ? textArray[0] : textArray[0])}
       </span>
-      {showCursor && (
+      {showCursor && !reduced && (
         <span
           ref={cursorRef}
-          className={`inline-block opacity-100 ${shouldHideCursor ? 'hidden' : ''} ${
-            cursorCharacter === '|' 
-              ? `h-5 w-[1px] translate-y-1 bg-foreground ${cursorClassName}` 
+          className={`inline-block cursor-blink ${shouldHideCursor ? 'hidden' : ''} ${
+            cursorCharacter === '|'
+              ? `h-5 w-[1px] translate-y-1 bg-current ${cursorClassName}`
               : `ml-1 ${cursorClassName}`
           }`}
+          style={{ animationDuration: `${cursorBlinkDuration * 2}s` }}
         >
           {cursorCharacter === '|' ? '' : cursorCharacter}
         </span>
       )}
     </Component>
-  );
-});
+  )
+})
 
-TypingText.displayName = 'TypingText';
+TypingText.displayName = 'TypingText'
 
-export default TypingText;
+export default TypingText

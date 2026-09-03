@@ -113,11 +113,9 @@ function InviteContent() {
     // Loading state
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Validating your invite...</p>
-                </div>
+            <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Validating your invite...</p>
             </div>
         )
     }
@@ -125,67 +123,62 @@ function InviteContent() {
     // Error state
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-                <Card className="w-full max-w-md">
+            <Card className="w-full max-w-md">
                     <CardContent className="pt-6">
                         <div className="text-center">
                             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                            <h2 className="text-xl font-semibold text-foreground mb-2">
                                 Invalid Invite
                             </h2>
-                            <p className="text-gray-500 mb-6">{error}</p>
+                            <p className="text-muted-foreground mb-6">{error}</p>
                             <Button onClick={() => router.push('/login')}>
                                 Go to Login
                             </Button>
                         </div>
                     </CardContent>
                 </Card>
-            </div>
         )
     }
 
     // Success state
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-                <Card className="w-full max-w-md">
+            <Card className="w-full max-w-md">
                     <CardContent className="pt-6">
                         <div className="text-center">
-                            <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                            <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-4" />
+                            <h2 className="text-xl font-semibold text-foreground mb-2">
                                 Account Created!
                             </h2>
-                            <p className="text-gray-500 mb-6">
+                            <p className="text-muted-foreground mb-6">
                                 Redirecting you to login...
                             </p>
-                            <Loader2 className="h-5 w-5 animate-spin text-gray-400 mx-auto" />
+                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" />
                         </div>
                     </CardContent>
                 </Card>
-            </div>
         )
     }
 
     // Signup form
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-            <Card className="w-full max-w-md">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl">Accept Invite</CardTitle>
-                    <p className="text-gray-500 mt-2">
-                        Create your account to join the team
-                    </p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {/* Invite Info */}
-                    <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-500">Email</span>
-                            <span className="font-medium text-gray-900">{inviteData?.email}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-500">Role</span>
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+        <>
+        <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Accept Invite</CardTitle>
+                <p className="text-muted-foreground mt-2">
+                    Create your account to join the team
+                </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="bg-muted rounded-lg p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Email</span>
+                        <span className="font-medium text-foreground">{inviteData?.email}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Role</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purdue-gold/15 text-purdue-gold">
                                 {inviteData?.role === 'admin' ? (
                                     <ShieldCheck className="h-3 w-3" />
                                 ) : (
@@ -260,18 +253,16 @@ function InviteContent() {
                     position="top"
                 />
             )}
-        </div>
+        </>
     )
 }
 
 export default function InvitesPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Loading...</p>
-                </div>
+            <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading...</p>
             </div>
         }>
             <InviteContent />

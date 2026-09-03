@@ -86,6 +86,8 @@ export function Toast({
 
     return (
         <div
+            role="status"
+            aria-live="polite"
             className={cn("fixed left-0 right-0 z-50 mx-auto max-w-md px-4 transition-all duration-300 ease" +
                 "-in-out",
         position === "top"
@@ -103,6 +105,7 @@ export function Toast({
                         <Button
                             variant="ghost"
                             onClick={handleClose}
+                            aria-label="Dismiss notification"
                             className="ml-2 h-6 w-6 opacity-70 hover:opacity-100">
                             <FontAwesomeIcon icon={faTimes} className="h-3 w-3"/>
                         </Button>

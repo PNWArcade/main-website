@@ -1,12 +1,18 @@
 "use client"
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/buttons/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/label'
 import { Toast, useToast } from '@/components/ui/toast'
 import ImageUploader, { uploadImageToBucket } from '@/components/ui/ImageUploader'
+import {
+    ManualMemberCreateForm,
+    type ManualMemberFormData,
+} from '@/components/dashboard/team/ManualMemberCreateForm'
+import type { ChapterTeamMember } from '@/lib/chapter-team'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faArrowsRotate,
@@ -20,6 +26,7 @@ import {
     faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons'
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons'
+import { useConfirm } from '@/components/dashboard/ui/useConfirm'
 
 // ============ Types ============
 
@@ -38,6 +45,7 @@ interface ScrapedMember {
     position: string
     image: string
     original_image?: string
+    source?: 'scraped' | 'manual' | 'former-president'
 }
 
 interface OverrideFormData {
@@ -65,6 +73,7 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 const OVERRIDES_URL = '/api/dashboard/team-overrides'
+const CHAPTER_TEAM_URL = '/api/dashboard/chapter-team'
 
 async function fetchOverrides(): Promise<TeamMemberOverride[]> {
     const { data } = await apiFetch<{ data: TeamMemberOverride[] }>(OVERRIDES_URL)
@@ -74,6 +83,18 @@ async function fetchOverrides(): Promise<TeamMemberOverride[]> {
 async function fetchScrapedMembers(): Promise<ScrapedMember[]> {
     const { data } = await apiFetch<{ data: { leadership: ScrapedMember[]; officers: ScrapedMember[]; mentors: ScrapedMember[]; advisors: ScrapedMember[] } }>('/api/pnw-team')
     return [...data.leadership, ...data.officers, ...data.mentors, ...data.advisors]
+        .filter((member) => member.source !== 'manual')
+}
+
+async function fetchFormerPresidents(): Promise<ScrapedMember[]> {
+    const { data } = await apiFetch<{ data: { id: string; name: string; photo_url: string | null; year: string }[] }>('/api/past-presidents')
+    return (data ?? []).map((president) => ({
+        name: president.name,
+        position: `Former President (${president.year})`,
+        image: president.photo_url || '',
+        original_image: president.photo_url || undefined,
+        source: 'former-president',
+    }))
 }
 
 async function createOverride(payload: { member_name: string } & OverridePayload): Promise<TeamMemberOverride> {
@@ -96,6 +117,15 @@ async function updateOverride(id: string, payload: OverridePayload): Promise<Tea
 
 async function deleteOverride(id: string): Promise<void> {
     await apiFetch(`${OVERRIDES_URL}/${id}`, { method: 'DELETE' })
+}
+
+async function createManualMember(payload: Record<string, unknown>): Promise<ChapterTeamMember> {
+    const { data } = await apiFetch<{ data: ChapterTeamMember }>(CHAPTER_TEAM_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    })
+    return data
 }
 
 /** Upload pending file or fall back to the existing URL (or null). */
@@ -134,7 +164,7 @@ function OverrideFormFields({
             <div>
                 <Label>LinkedIn URL</Label>
                 <div className="relative mt-1">
-                    <FontAwesomeIcon icon={faLinkedin} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <FontAwesomeIcon icon={faLinkedin} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="url"
                         placeholder="https://linkedin.com/in/..."
@@ -148,7 +178,7 @@ function OverrideFormFields({
             <div>
                 <Label>Email</Label>
                 <div className="relative mt-1">
-                    <FontAwesomeIcon icon={faEnvelope} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <FontAwesomeIcon icon={faEnvelope} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="email"
                         placeholder="member@example.com"
@@ -177,25 +207,35 @@ function SaveButton({ isSaving, disabled, label = 'Save' }: { isSaving: boolean;
 function ThumbnailImage({ src, alt, label, highlight }: { src: string; alt: string; label: string; highlight?: boolean }) {
     return (
         <div className="text-center">
-            <img
+            <Image
                 src={src}
                 alt={alt}
-                className={`w-16 h-16 rounded-full object-cover ${highlight ? 'border-2 border-yellow-400' : 'border border-gray-200'}`}
+                width={64}
+                height={64}
+                className={`w-16 h-16 rounded-full object-cover ${highlight ? 'border-2 border-yellow-400' : 'border border-border'}`}
             />
-            <span className={`text-[10px] block mt-1 ${highlight ? 'text-yellow-600' : 'text-gray-400'}`}>{label}</span>
+            <span className={`text-[10px] block mt-1 ${highlight ? 'text-yellow-600' : 'text-muted-foreground'}`}>{label}</span>
         </div>
     )
 }
 
 // ============ Section Components ============
 
-function PageHeader({ onRefresh, onAdd }: { onRefresh: () => void; onAdd: () => void }) {
+function PageHeader({
+    onRefresh,
+    onAddOverride,
+    onAddManual,
+}: {
+    onRefresh: () => void
+    onAddOverride: () => void
+    onAddManual: () => void
+}) {
     return (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 className="text-2xl font-bold text-purdue-black">Team Member Overrides</h1>
-                <p className="text-gray-500">
-                    Customize images, LinkedIn, and email for web-scraped team members
+                <h1 className="text-2xl font-bold text-foreground">Team Member Overrides</h1>
+                <p className="text-muted-foreground">
+                    Customize scraped profiles, former president photos, or add people missing from the PNW roster.
                 </p>
             </div>
             <div className="flex gap-2">
@@ -203,9 +243,13 @@ function PageHeader({ onRefresh, onAdd }: { onRefresh: () => void; onAdd: () => 
                     <FontAwesomeIcon icon={faArrowsRotate} className="h-4 w-4 mr-1" />
                     Refresh
                 </Button>
-                <Button size="sm" onClick={onAdd}>
+                <Button variant="outline" size="sm" onClick={onAddOverride}>
                     <FontAwesomeIcon icon={faPlus} className="h-4 w-4 mr-1" />
                     Add Override
+                </Button>
+                <Button size="sm" onClick={onAddManual}>
+                    <FontAwesomeIcon icon={faPlus} className="h-4 w-4 mr-1" />
+                    Add Member
                 </Button>
             </div>
         </div>
@@ -215,7 +259,7 @@ function PageHeader({ onRefresh, onAdd }: { onRefresh: () => void; onAdd: () => 
 function SearchBar({ value, onChange }: { value: string; onChange: (v: string) => void }) {
     return (
         <div className="relative max-w-sm">
-            <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
                 placeholder="Search by name..."
                 value={value}
@@ -229,15 +273,15 @@ function SearchBar({ value, onChange }: { value: string; onChange: (v: string) =
 function LoadingSpinner() {
     return (
         <div className="flex justify-center py-12">
-            <FontAwesomeIcon icon={faArrowsRotate} className="h-8 w-8 animate-spin text-gray-400" />
+            <FontAwesomeIcon icon={faArrowsRotate} className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
     )
 }
 
 function EmptyState() {
     return (
-        <div className="text-center py-12 text-gray-500">
-            <FontAwesomeIcon icon={faImage} className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+        <div className="text-center py-12 text-muted-foreground">
+            <FontAwesomeIcon icon={faImage} className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
             <p className="text-lg font-medium">No overrides yet</p>
             <p className="text-sm">
                 Click &quot;Add Override&quot; to customize a team member&apos;s image, LinkedIn, or email.
@@ -260,19 +304,22 @@ function CreateOverrideForm({
     onCancel: () => void
 }) {
     const [selectedMember, setSelectedMember] = useState('')
+    const [customName, setCustomName] = useState('')
     const [form, setForm] = useState<OverrideFormData>(EMPTY_FORM)
 
     const updateField = <K extends keyof OverrideFormData>(key: K, value: OverrideFormData[K]) => {
         setForm((prev) => ({ ...prev, [key]: value }))
     }
 
+    const resolvedName = selectedMember === '__custom' ? customName.trim() : selectedMember
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        await onSubmit(selectedMember, form)
+        await onSubmit(resolvedName, form)
     }
 
     return (
-        <div className="border rounded-lg p-6 bg-white shadow-sm space-y-4">
+        <div className="border rounded-lg p-6 bg-card  space-y-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">New Override</h2>
                 <Button variant="ghost" size="sm" onClick={onCancel}>
@@ -284,30 +331,43 @@ function CreateOverrideForm({
                 <div>
                     <Label>Team Member</Label>
                     {membersLoading ? (
-                        <p className="text-sm text-gray-400 mt-1">Loading members...</p>
-                    ) : availableMembers.length === 0 ? (
-                        <p className="text-sm text-gray-500 mt-1">All scraped members already have overrides.</p>
+                        <p className="text-sm text-muted-foreground mt-1">Loading members...</p>
                     ) : (
                         <select
                             value={selectedMember}
                             onChange={(e) => setSelectedMember(e.target.value)}
-                            className="w-full mt-1 border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                            className="w-full mt-1 border rounded-md px-3 py-2 text-sm bg-card focus:outline-none focus:ring-2 focus:ring-purdue-gold"
                         >
                             <option value="">Select a member...</option>
                             {availableMembers.map((m) => (
-                                <option key={m.name} value={m.name}>
+                                <option key={`${m.source}-${m.name}`} value={m.name}>
                                     {m.name} — {m.position}
                                 </option>
                             ))}
+                            <option value="__custom">Someone else (type a name)...</option>
                         </select>
                     )}
                 </div>
+
+                {selectedMember === '__custom' && (
+                    <div>
+                        <Label htmlFor="override-custom-name">Name</Label>
+                        <Input
+                            id="override-custom-name"
+                            value={customName}
+                            onChange={(e) => setCustomName(e.target.value)}
+                            className="mt-1"
+                            placeholder="Former president or officer name"
+                            required
+                        />
+                    </div>
+                )}
 
                 <OverrideFormFields form={form} onChange={updateField} />
 
                 <div className="flex gap-2 justify-end">
                     <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-                    <SaveButton isSaving={isSaving} disabled={!selectedMember} label="Save Override" />
+                    <SaveButton isSaving={isSaving} disabled={!resolvedName} label="Save Override" />
                 </div>
             </form>
         </div>
@@ -337,8 +397,9 @@ function OverrideViewMode({
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 truncate">{override.member_name}</h3>
-                {scraped && <p className="text-xs text-gray-500">{scraped.position}</p>}
+                <h3 className="font-semibold text-foreground truncate">{override.member_name}</h3>
+                {scraped && <p className="text-xs text-muted-foreground">{scraped.position}</p>}
+                {!scraped && <p className="text-xs text-muted-foreground">Custom override (including former presidents)</p>}
                 <div className="flex items-center gap-3 mt-1">
                     {override.linkedin_url && (
                         <a
@@ -352,7 +413,7 @@ function OverrideViewMode({
                         </a>
                     )}
                     {override.email && (
-                        <span className="text-gray-500 text-xs flex items-center gap-1">
+                        <span className="text-muted-foreground text-xs flex items-center gap-1">
                             <FontAwesomeIcon icon={faEnvelope} className="h-3 w-3" />
                             {override.email}
                         </span>
@@ -368,7 +429,7 @@ function OverrideViewMode({
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-500/10"
                     onClick={onDelete}
                 >
                     <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
@@ -444,7 +505,7 @@ function OverrideCard({
     onCancelEdit: () => void
 }) {
     return (
-        <div className="border rounded-lg bg-white shadow-sm overflow-hidden">
+        <div className="border rounded-lg bg-card  overflow-hidden">
             {isEditing ? (
                 <OverrideEditMode override={override} isSaving={isSaving} onSave={onSave} onCancel={onCancelEdit} />
             ) : (
@@ -457,9 +518,11 @@ function OverrideCard({
 // ============ Page Component ============
 
 export default function TeamOverridesPage() {
+    const { confirm, dialog } = useConfirm()
     const queryClient = useQueryClient()
     const { toast, showToast, hideToast } = useToast()
     const [showCreate, setShowCreate] = useState(false)
+    const [showManualCreate, setShowManualCreate] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [isSaving, setIsSaving] = useState(false)
@@ -474,7 +537,15 @@ export default function TeamOverridesPage() {
         queryFn: fetchScrapedMembers,
     })
 
-    const invalidateOverrides = () => queryClient.invalidateQueries({ queryKey: ['team-overrides'] })
+    const { data: formerPresidents, isLoading: formerLoading } = useQuery({
+        queryKey: ['past-presidents'],
+        queryFn: fetchFormerPresidents,
+    })
+
+    const invalidateOverrides = () => {
+        queryClient.invalidateQueries({ queryKey: ['team-overrides'] })
+        queryClient.invalidateQueries({ queryKey: ['past-presidents'] })
+    }
 
     const createMutation = useMutation({
         mutationFn: createOverride,
@@ -494,9 +565,26 @@ export default function TeamOverridesPage() {
         onError: (err: Error) => showToast(err.message, 'error'),
     })
 
+    const createManualMutation = useMutation({
+        mutationFn: createManualMember,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['chapter-team'] })
+            queryClient.invalidateQueries({ queryKey: ['scraped-members'] })
+            showToast('Team member added to the public team page', 'success')
+            setShowManualCreate(false)
+        },
+        onError: (err: Error) => showToast(err.message, 'error'),
+    })
+
     // Derived data
     const existingNames = new Set((overrides || []).map((o) => o.member_name.toLowerCase()))
-    const availableMembers = (scrapedMembers || []).filter((m) => !existingNames.has(m.name.toLowerCase()))
+    const scrapedNames = new Set((scrapedMembers || []).map((m) => m.name.toLowerCase()))
+    const availableMembers = [
+        ...(scrapedMembers || []).filter((m) => !existingNames.has(m.name.toLowerCase())),
+        ...(formerPresidents || []).filter(
+            (m) => !existingNames.has(m.name.toLowerCase()) && !scrapedNames.has(m.name.toLowerCase())
+        ),
+    ]
     const filteredOverrides = (overrides || []).filter((o) =>
         o.member_name.toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -534,22 +622,72 @@ export default function TeamOverridesPage() {
         } finally { setIsSaving(false) }
     }
 
-    function handleDelete(id: string) {
-        if (!confirm('Remove this override? The member will revert to their scraped image.')) return
+    async function handleManualCreate(form: ManualMemberFormData) {
+        if (!form.name.trim() || !form.position.trim()) {
+            showToast('Name and role are required', 'warning')
+            return
+        }
+        if (scrapedMembers?.some(
+            (member) => member.name.toLowerCase() === form.name.trim().toLowerCase(),
+        )) {
+            showToast('This person is already on the PNW roster. Add an override instead.', 'warning')
+            return
+        }
+
+        setIsSaving(true)
+        try {
+            const imageUrl = form.pendingImage
+                ? await uploadImageToBucket(form.pendingImage, 'team-members')
+                : form.imageUrl || null
+
+            await createManualMutation.mutateAsync({
+                name: form.name.trim(),
+                position: form.position.trim(),
+                category: form.category,
+                image_url: imageUrl,
+                linkedin_url: form.linkedinUrl || null,
+                email: form.email || null,
+            })
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    async function handleDelete(id: string) {
+        if (!(await confirm('Remove this override? The member will revert to their scraped photo.'))) return
         deleteMutation.mutate(id)
     }
 
     return (
         <div className="space-y-6">
+            {dialog}
             {toast && <Toast message={toast.message} type={toast.type} duration={toast.duration} onClose={hideToast} />}
 
-            <PageHeader onRefresh={() => refetch()} onAdd={() => setShowCreate(true)} />
+            <PageHeader
+                onRefresh={() => refetch()}
+                onAddOverride={() => {
+                    setShowManualCreate(false)
+                    setShowCreate(true)
+                }}
+                onAddManual={() => {
+                    setShowCreate(false)
+                    setShowManualCreate(true)
+                }}
+            />
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
+
+            {showManualCreate && (
+                <ManualMemberCreateForm
+                    isSaving={isSaving}
+                    onSubmit={handleManualCreate}
+                    onCancel={() => setShowManualCreate(false)}
+                />
+            )}
 
             {showCreate && (
                 <CreateOverrideForm
                     availableMembers={availableMembers}
-                    membersLoading={membersLoading}
+                    membersLoading={membersLoading || formerLoading}
                     isSaving={isSaving}
                     onSubmit={handleCreate}
                     onCancel={() => setShowCreate(false)}
